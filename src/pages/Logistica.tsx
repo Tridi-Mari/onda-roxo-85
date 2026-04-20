@@ -2176,19 +2176,23 @@ export function Logistica() {
                       }
                     };
 
-                    const abrirListaUrgentes = async (pedidos?: any[]) => {
+                    const abrirListaUrgentes = async (pedidos?: any[], targetId?: string) => {
                       try {
                         const lista = pedidos ?? pedidosUrgentes;
                         const ids = lista.map((x: any) => x.id).filter(Boolean);
                         const fullList = sortPedidos(
                           await fetchPedidosPorIds(ids),
                         );
+                        const targetIdx = targetId
+                          ? fullList.findIndex((x: any) => x.id === targetId)
+                          : -1;
+                        const startIdx = targetIdx >= 0 ? targetIdx : 0;
                         setOpenPlatformId(null);
                         setModoListaPorPlataforma(true);
                         setFilterPlataformaId("");
                         setPedidosFiltrados(fullList);
-                        setPedidoAtualIndex(0);
-                        setFoundPedido(fullList[0] || null);
+                        setPedidoAtualIndex(startIdx);
+                        setFoundPedido(fullList[startIdx] || null);
                         setFoundItemIds([]);
                         setItemInputs({});
                         setItemStatus({});
@@ -2496,7 +2500,7 @@ export function Logistica() {
                                           key={p.id}
                                           className="relative flex flex-col items-center gap-1.5 rounded-lg border-2 border-red-400 bg-card p-2 w-24 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                                           onClick={() =>
-                                            abrirListaUrgentes(grupo.pedidos)
+                                            abrirListaUrgentes(grupo.pedidos, p.id)
                                           }
                                         >
                                           <span className="absolute -top-2 -right-2 z-10 inline-flex items-center justify-center rounded-full bg-red-500 text-white font-bold text-[9px] px-1.5 py-0.5 shadow">
@@ -2585,6 +2589,7 @@ export function Logistica() {
                                         onClick={() =>
                                           abrirListaUrgentes(
                                             pedidosShopeeUrgentes,
+                                            p.id,
                                           )
                                         }
                                       >
@@ -2675,6 +2680,7 @@ export function Logistica() {
                                         onClick={() =>
                                           abrirListaUrgentes(
                                             pedidosMLOrganizador,
+                                            p.id,
                                           )
                                         }
                                       >
