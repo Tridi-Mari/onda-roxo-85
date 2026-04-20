@@ -2176,7 +2176,10 @@ export function Logistica() {
                       }
                     };
 
-                    const abrirListaUrgentes = async (pedidos?: any[], targetId?: string) => {
+                    const abrirListaUrgentes = async (
+                      pedidos?: any[],
+                      targetId?: string,
+                    ) => {
                       try {
                         const lista = pedidos ?? pedidosUrgentes;
                         const ids = lista.map((x: any) => x.id).filter(Boolean);
@@ -2500,7 +2503,10 @@ export function Logistica() {
                                           key={p.id}
                                           className="relative flex flex-col items-center gap-1.5 rounded-lg border-2 border-red-400 bg-card p-2 w-24 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                                           onClick={() =>
-                                            abrirListaUrgentes(grupo.pedidos, p.id)
+                                            abrirListaUrgentes(
+                                              grupo.pedidos,
+                                              p.id,
+                                            )
                                           }
                                         >
                                           <span className="absolute -top-2 -right-2 z-10 inline-flex items-center justify-center rounded-full bg-red-500 text-white font-bold text-[9px] px-1.5 py-0.5 shadow">
