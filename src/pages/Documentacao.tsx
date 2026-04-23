@@ -273,7 +273,7 @@ function InfoCard({
 }
 
 /* ─── Senha de acesso ────────────────────────────────── */
-const SENHA_DOCUMENTACAO = "zeelux2025";
+const SENHA_DOCUMENTACAO = "zeelux2026";
 
 /* ═════════════════════════════════════════════════════════
    ═══ COMPONENTE PRINCIPAL ══════════════════════════════
