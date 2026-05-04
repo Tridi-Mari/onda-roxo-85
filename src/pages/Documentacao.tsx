@@ -47,6 +47,15 @@ import {
   AlertTriangle,
   Lock,
   Webhook,
+  History,
+  BellRing,
+  Route,
+  ServerCog,
+  Component,
+  Tags,
+  BarChart2,
+  Smartphone,
+  Package2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -164,6 +173,43 @@ const sections: SectionItem[] = [
     id: "paginas-publicas",
     label: "Páginas Públicas",
     icon: <Globe className="w-4 h-4" />,
+  },
+  {
+    id: "dashboard-comercial",
+    label: "Dashboard Comercial",
+    icon: <BarChart2 className="w-4 h-4" />,
+    badge: "Métricas",
+  },
+  {
+    id: "historico",
+    label: "Histórico de Movimentações",
+    icon: <History className="w-4 h-4" />,
+  },
+  {
+    id: "push-notifications",
+    label: "Web Push (PWA)",
+    icon: <Smartphone className="w-4 h-4" />,
+    badge: "PWA",
+  },
+  {
+    id: "tipos-lead",
+    label: "Tipos de Lead",
+    icon: <Tags className="w-4 h-4" />,
+  },
+  {
+    id: "componentes",
+    label: "Componentes Reutilizáveis",
+    icon: <Component className="w-4 h-4" />,
+  },
+  {
+    id: "rotas",
+    label: "Rotas do Sistema",
+    icon: <Route className="w-4 h-4" />,
+  },
+  {
+    id: "deploy",
+    label: "Deploy & Configuração",
+    icon: <ServerCog className="w-4 h-4" />,
   },
 ];
 
@@ -323,6 +369,62 @@ const searchIndex: SearchEntry[] = [
       "Login, formulário do cliente, termos e política de privacidade",
     keywords:
       "páginas públicas auth login senha redefinir informacoes entrega formulário cliente link único sem login cpf cnpj validação dígitos verificadores viacep cep endereço complemento observação formulario_enviado documentacao termos serviço política privacidade lgpd dpo not found 404 erros InformacoesEntrega",
+  },
+  {
+    id: "dashboard-comercial",
+    label: "Dashboard Comercial",
+    description:
+      "Dashboard dedicado à equipe comercial com métricas de PIX, TypeBot, upsell Yampi e conversão por responsável",
+    keywords:
+      "dashboard comercial pix leads métricas typebot yampi upsell conversão responsável ticket médio faturamento gráficos recharts área linha barra pizza taxa recuperação incremento período comparativo",
+  },
+  {
+    id: "historico",
+    label: "Histórico de Movimentações",
+    description:
+      "Registro auditável de todas as alterações feitas em pedidos, com filtros e busca por usuário ou data",
+    keywords:
+      "histórico movimentações auditoria log alterações pedidos registrar buscar historicoMovimentacoes.ts historico_movimentacoes tabela userId filtros data paginação limite offset",
+  },
+  {
+    id: "push-notifications",
+    label: "Web Push (PWA)",
+    description:
+      "Notificações push via Web Push API — service worker, VAPID, permissão do browser e tabela push_subscriptions",
+    keywords:
+      "push notifications web push pwa service worker vapid VITE_VAPID_PUBLIC_KEY sw.js push_subscriptions subscribe unsubscribe permissão browser PushManager usePushNotifications",
+  },
+  {
+    id: "tipos-lead",
+    label: "Tipos de Lead",
+    description:
+      "Gerenciamento de categorias de lead (TypeBot, manual) com imagem, integração via id_type",
+    keywords:
+      "tipos de lead tipo_de_lead typebot id_type imagem foto supabase storage TiposDeLead.tsx nome badge comercial sidebar",
+  },
+  {
+    id: "componentes",
+    label: "Componentes Reutilizáveis",
+    description:
+      "Visão geral dos componentes compartilhados: layout, modais, shipping, orders, notifications, dashboard",
+    keywords:
+      "componentes reutilizáveis AppLayout AppHeader AppNavigation ProtectedRoute SearchPanel KanbanBoard CotacaoFreteModal EmbalagensManager RemetentesManager ClientEditModal EditSelectModal modals shipping orders layout",
+  },
+  {
+    id: "rotas",
+    label: "Rotas do Sistema",
+    description:
+      "Mapa completo de todas as rotas do sistema — protegidas, públicas e páginas de erro",
+    keywords:
+      "rotas routes react router dom App.tsx protegidas públicas autenticação ProtectedRoute path URL dashboard pedido logistica estoque producao comercial configuracoes documentacao",
+  },
+  {
+    id: "deploy",
+    label: "Deploy & Configuração",
+    description:
+      "Deploy via Vercel, variáveis de ambiente necessárias, estrutura de build com Vite e configuração do Supabase",
+    keywords:
+      "deploy vercel vite build variáveis ambiente env VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY VITE_VAPID_PUBLIC_KEY rewrites spa package.json bun supabase config.toml",
   },
 ];
 
@@ -755,15 +857,15 @@ export default function Documentacao() {
                 </p>
               </InfoCard>
               <InfoCard
-                title="4 Edge Functions"
+                title="7 Edge Functions"
                 icon={<Zap className="w-4 h-4" />}
               >
                 <p>
-                  Conta com 4 automações na nuvem (chamadas Edge Functions): 3
-                  delas recebem avisos automáticos da loja virtual Yampi (quando
-                  um pedido é pago, quando um PIX é aprovado e quando um cliente
-                  abandona o carrinho) e 1 calcula o frete mais barato pelo
-                  serviço Melhor Envio.
+                  Conta com 7 automações na nuvem (Edge Functions): 3 recebem
+                  avisos automáticos da Yampi (pedido pago, PIX aprovado e
+                  carrinho abandonado) e 4 são chamadas pelo próprio sistema
+                  para calcular frete (Melhor Envio), gerar etiquetas, processar
+                  envio e verificar saldo disponível.
                 </p>
               </InfoCard>
             </div>
@@ -2024,151 +2126,732 @@ supabase/
           {/* LOGÍSTICA */}
           {/* ═══════════════════════════════════════════════ */}
           <section id="logistica" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
-              🚚 Logística
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Truck className="w-6 h-6 text-blue-500" />
+              Logística
             </h2>
-
-            <h3 className="text-lg font-semibold">
-              Logistica.tsx — Central de Envios
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Página principal do setor de envio. O operador logaísta trabalha
-              aqui para despachar os pedidos: ele escaneia os códigos de barras
-              dos produtos com um leitor, confirma que os itens corretos estão
-              na caixa e gera a etiqueta de envio automaticamente.
+            <p className="text-gray-600 dark:text-gray-300">
+              Módulo responsável por todo o fluxo de despacho de pedidos — da
+              bipação dos itens até a geração da etiqueta e confirmação do
+              envio. Composto por <strong>Logistica.tsx</strong> (versão atual)
+              e, para histórico, <strong>Logistica_old.tsx</strong> (versão
+              anterior, mantida em <code>old_codigos/</code>).
             </p>
+
+            {/* ── LOGISTICA.TSX ATUAL ── */}
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mt-2">
+              Logistica.tsx — Versão Atual
+            </h3>
 
             <CollapsibleSection
-              title="Fluxo de Bipação (Envio de Pedidos)"
-              defaultOpen
+              title="Constantes de UUID (IDs Fixos do Sistema)"
+              defaultOpen={false}
             >
-              <ol className="list-decimal list-inside space-y-2 text-sm">
-                <li>
-                  <strong>Escanear código</strong> — o operador aponta o leitor
-                  de código de barras para um produto. Ao confirmar com Enter, o
-                  sistema busca automaticamente a qual pedido aquele produto
-                  pertence
-                </li>
-                <li>
-                  <strong>Priorização inteligente</strong> — o sistema escolhe o
-                  pedido mais prioritário seguindo esta ordem: pedidos urgentes
-                  primeiro → pedido mais antigo → pedido com menos itens → maior
-                  quantidade do mesmo produto
-                </li>
-                <li>
-                  <strong>Cartão do pedido</strong> — após identificar o pedido,
-                  exibe um cartão com: responsável, plataforma, código do pedido
-                  e lista dos produtos agrupados com imagens
-                </li>
-                <li>
-                  <strong>Confirmação por item</strong> — cada produto do pedido
-                  precisa ter seu código de barras bipado individualmente. O
-                  item fica <span style={{ color: "green" }}>verde</span> quando
-                  correto e <span style={{ color: "red" }}>vermelho</span>{" "}
-                  quando o código não bate
-                </li>
-                <li>
-                  <strong>Todos bipados</strong> — assim que todos os itens
-                  forem confirmados, o botão de gerar etiqueta fica ativo
-                  (\"IMPRIMIR ETIQUETA\" ou \"Etiqueta Mercado Livre\" para
-                  pedidos do ML)
-                </li>
-                <li>
-                  <strong>Geração da etiqueta</strong> — verifica saldo no
-                  Melhor Envio (≥ R$50) → seleciona automaticamente o remetente
-                  adequado para a plataforma do pedido → gera a etiqueta via
-                  integração → abre o PDF para impressão → atualiza o status do
-                  pedido para ENVIADO
-                </li>
-              </ol>
-            </CollapsibleSection>
-
-            <CollapsibleSection title="Enviar por Pedido">
-              <p className="text-sm">
-                Modal alternativo que permite ao operador iniciar o processo de
-                envio buscando um pedido pelo código (código externo ou ID
-                interno), sem precisar bipar primeiro. Útil quando o leitor de
-                código de barras não está disponível ou quando o produto não tem
-                código de barras.
-              </p>
-            </CollapsibleSection>
-
-            <CollapsibleSection title="Painel de Itens a Enviar (view: vw_itens_logistica)">
-              <p className="text-sm">
-                Quando nenhum pedido está sendo processado no momento, a tela
-                exibe automaticamente um painel de cards mostrando todos os
-                produtos que ainda precisam ser enviados. Os itens são agrupados
-                por produto/variação, mostrando a quantidade total somada de
-                todos os pedidos pendentes na logística. Isso permite que o
-                operador saiba de antemão quantas peças de cada produto precisam
-                ser preparadas.
-              </p>
-            </CollapsibleSection>
-
-            <h3 className="text-lg font-semibold mt-4">
-              EnvioPorEtiqueta.tsx — Envio com Etiquetas Manuais
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Página para enviar pedidos que usam etiquetas manuais (etiquetas
-              que foram enviadas em PDF pelo vendedor ou geradas externamente,
-              não pelo Melhor Envio). Usada quando a etiqueta já foi preparada e
-              precisa apenas ser impressa e os itens conferidos.
-            </p>
-
-            <CollapsibleSection title="Fluxo de Envio por Etiqueta Manual">
-              <ol className="list-decimal list-inside space-y-2 text-sm">
-                <li>
-                  <strong>Filtro automático</strong> — a página mostra apenas
-                  pedidos que já têm etiquetas enviadas em PDF
-                  (etiquetas_uploads não vazio) e ainda não foram marcados como
-                  ENVIADO
-                </li>
-                <li>
-                  <strong>Modal de três etapas</strong> — ao clicar em um
-                  pedido, abre uma janela com as seguintes etapas obrigatórias
-                  em ordem:
-                  <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                    <li>
-                      <strong>1ª Etapa — Bipação de itens</strong> — o operador
-                      confirma os códigos de barras de cada item do pedido,
-                      garantindo que os produtos corretos estão sendo embalados
-                    </li>
-                    <li>
-                      <strong>2ª Etapa — Visualização das etiquetas</strong> —
-                      só aparece após bipar TODOS os itens. Exibe os
-                      quadradinhos das etiquetas em PDF. Cada etiqueta deve ser
-                      aberta/visualizada antes de prosseguir
-                    </li>
-                    <li>
-                      <strong>3ª Etapa — Marcar como Enviado</strong> — o botão
-                      só fica ativo após TODAS as etiquetas terem sido
-                      visualizadas. Ao confirmar, registra o responsável pelo
-                      envio e a data/hora exatos
-                    </li>
-                  </ul>
-                </li>
-              </ol>
-            </CollapsibleSection>
-
-            <CollapsibleSection title="Atribuição Automática de Remetente">
-              <p className="text-sm">
-                O sistema define automaticamente qual remetente (endereço de
-                saída) usar dependendo da plataforma do pedido. Isso evita que o
-                operador precise selecionar manualmente a cada envio:
-              </p>
               <DocTable
-                headers={["Plataformas", "Remetente Utilizado"]}
+                headers={["Constante", "UUID", "Significado"]}
                 rows={[
                   [
-                    "3 plataformas especiais (configuradas internamente com UUIDs específicos)",
-                    "Remetente: 3fc6839c-e959-4dc1-a983-f61d557e50ec",
+                    "MERCADO_LIVRE_PLATAFORMA_ID",
+                    "3e5a2b44-245a-4be9-a0b1-ef67d83fd8ec",
+                    "ID da plataforma Mercado Livre",
                   ],
                   [
-                    "Todas as outras plataformas",
-                    "Remetente: 128a7de7-d649-43e1-8ba3-2b54c3496b14",
+                    "SHOPEE_PLATAFORMA_ID",
+                    "c22b2def-47fc-4fbb-aab1-660c951734c7",
+                    "ID da plataforma Shopee",
+                  ],
+                  [
+                    "ENVIADO_STATUS_ID",
+                    "fa6b38ba-1d67-4bc3-821e-ab089d641a25",
+                    "ID do status 'Enviado'",
+                  ],
+                  [
+                    "LOGISTICA_STATUS_ID",
+                    "3473cae9-47c8-4b85-96af-b41fe0e15fa9",
+                    "ID do status 'Em Logística'",
+                  ],
+                  [
+                    "ITEM_PRIORITARIO_ML_ID",
+                    "ab8a89a1-aa95-4a98-99c2-eaa3de670462",
+                    "ID do item que tem prioridade de envio no ML",
+                  ],
+                  [
+                    "TARGET_ETIQUETA_ID (inline)",
+                    "466958dd-e525-4e8d-95f1-067124a5ea7f",
+                    "ID da etiqueta de envio padrão (filtro de pedidos aptos)",
                   ],
                 ]}
               />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Estados React (useState) da Página"
+              defaultOpen={false}
+            >
+              <DocTable
+                headers={["Estado", "Tipo", "Finalidade"]}
+                rows={[
+                  [
+                    "barcode",
+                    "string",
+                    "Valor digitado/bipado no input de código de barras",
+                  ],
+                  [
+                    "foundPedido",
+                    "any | null",
+                    "Pedido encontrado após bipagem — exibido no card central",
+                  ],
+                  [
+                    "foundItemIds",
+                    "string[]",
+                    "IDs dos itens já confirmados no pedido atual",
+                  ],
+                  [
+                    "itemInputs",
+                    "Record<string, string>",
+                    "Valores digitados em cada campo de bipe por item",
+                  ],
+                  [
+                    "itemStatus",
+                    "Record<string, 'idle'|'success'|'error'>",
+                    "Estado visual de cada item (verde/vermelho/padrão)",
+                  ],
+                  [
+                    "gruposAgrupados",
+                    "Record<string, {nome_completo, quantidade_total}>",
+                    "Itens agrupados por produto/variação para exibição",
+                  ],
+                  [
+                    "logItems",
+                    "LogItem[]",
+                    "Lista de itens pendentes de envio (painel lateral)",
+                  ],
+                  [
+                    "plataformasCards",
+                    "any[]",
+                    "Cards de plataforma com contagem de pedidos prontos",
+                  ],
+                  [
+                    "openPlatformId",
+                    "string | null",
+                    "ID da plataforma cujo card está expandido",
+                  ],
+                  [
+                    "platformOrderItems",
+                    "Record<string, any[]>",
+                    "Pedidos expandidos dentro de cada card de plataforma",
+                  ],
+                  [
+                    "filterPlataformaId",
+                    "string",
+                    "Filtro de plataforma aplicado — recarrega lista ao mudar",
+                  ],
+                  [
+                    "filterProdutos",
+                    "ProdutoFiltro[]",
+                    "Filtros de produto/variação ativos na busca",
+                  ],
+                  [
+                    "tempFilter*",
+                    "—",
+                    "Versões temporárias dos filtros (antes de aplicar)",
+                  ],
+                  [
+                    "modoListaPorPlataforma",
+                    "boolean",
+                    "true quando navegando pela fila de pedidos de uma plataforma",
+                  ],
+                  [
+                    "pedidosFiltrados",
+                    "any[]",
+                    "Lista ordenada de pedidos da plataforma selecionada",
+                  ],
+                  [
+                    "pedidoAtualIndex",
+                    "number",
+                    "Índice do pedido sendo processado na lista filtrada",
+                  ],
+                  [
+                    "saldoMelhorEnvio",
+                    "number | null",
+                    "Saldo em R$ na conta do Melhor Envio",
+                  ],
+                  [
+                    "etiquetaModalOpen / etiquetaUrl",
+                    "boolean / string",
+                    "Controla modal de PDF de etiqueta padrão",
+                  ],
+                  [
+                    "etiquetaMLModalOpen / etiquetaMLPdfUrl",
+                    "boolean / string",
+                    "Controla modal de PDF de etiqueta Mercado Livre",
+                  ],
+                  [
+                    "pedidoIdModalOpen / pedidoIdInput",
+                    "boolean / string",
+                    "Modal de envio manual por ID de pedido",
+                  ],
+                  [
+                    "pedidoJaEnviadoModalOpen / pedidoJaEnviado",
+                    "boolean / any",
+                    "Modal de alerta quando pedido já foi enviado",
+                  ],
+                  [
+                    "confirmEnvioModal",
+                    "ConfirmEnvioData | null",
+                    "Modal de confirmação após abrir link de etiqueta",
+                  ],
+                  [
+                    "produtoPedidosModal",
+                    "objeto",
+                    "Modal que lista pedidos de um produto ao clicar no card",
+                  ],
+                  [
+                    "copiedPedidoId",
+                    "string | null",
+                    "ID copiado para clipboard (feedback visual de 2s)",
+                  ],
+                  [
+                    "userId",
+                    "string | null",
+                    "ID do usuário logado, usado em registrarHistoricoMovimentacao",
+                  ],
+                ]}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Fluxo de Bipação — Passo a Passo"
+              defaultOpen={true}
+            >
+              <ol className="list-decimal list-inside space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  <strong>Foco automático no input</strong> — a página mantém
+                  foco no campo de código de barras (<code>barcodeRef</code>)
+                  continuamente, permitindo que o leitor dispare sem clique
+                  manual.
+                </li>
+                <li>
+                  <strong>Escanear / Enter</strong> — ao pressionar Enter, o
+                  sistema chama a função de busca de pedido pelo código bipado.
+                  A busca pesquisa nos <code>itens_pedido</code> pelo campo{" "}
+                  <code>codigo_barras</code>.
+                </li>
+                <li>
+                  <strong>
+                    Algoritmo de priorização (<code>sortPedidos</code>)
+                  </strong>{" "}
+                  — quando múltiplos pedidos contêm o produto bipado, o sistema
+                  escolhe o pedido mais prioritário pela seguinte ordem:
+                  <ol className="list-decimal list-inside ml-4 mt-1 space-y-1">
+                    <li>
+                      ML com item prioritário (
+                      <code>ITEM_PRIORITARIO_ML_ID</code>) → primeiro
+                    </li>
+                    <li>
+                      ML com <code>shipping_id</code> preenchido → segundo
+                    </li>
+                    <li>
+                      Pedido urgente (<code>urgente = true</code>) → terceiro
+                    </li>
+                    <li>
+                      Pedido mais antigo (<code>criado_em ASC</code>) → quarto
+                    </li>
+                    <li>
+                      Tiebreaker: UUID do pedido (estável entre re-renders)
+                    </li>
+                  </ol>
+                </li>
+                <li>
+                  <strong>Card do pedido</strong> — exibe responsável,
+                  plataforma (logo), código externo e todos os itens com imagem,
+                  nome e quantidade. O campo de bipação de cada item aparece.
+                </li>
+                <li>
+                  <strong>Confirmação por item</strong> — o operador bipa cada
+                  item individualmente. Quando o código bate: item fica{" "}
+                  <span className="text-green-600 font-semibold">verde</span> e
+                  é adicionado a <code>foundItemIds</code>. Código errado: item
+                  fica
+                  <span className="text-red-600 font-semibold">
+                    {" "}
+                    vermelho
+                  </span>{" "}
+                  com feedback de erro.
+                </li>
+                <li>
+                  <strong>Todos confirmados</strong> — quando{" "}
+                  <code>foundItemIds.length === itens_totais</code>, os botões
+                  de etiqueta são ativados: "IMPRIMIR ETIQUETA" (Melhor Envio)
+                  ou "Etiqueta Mercado Livre" (para pedidos da plataforma ML).
+                </li>
+                <li>
+                  <strong>Verificação de saldo</strong> — antes de gerar, o
+                  sistema verifica se
+                  <code>saldoMelhorEnvio ≥ 50</code>. Se não, exibe aviso.
+                </li>
+                <li>
+                  <strong>Geração da etiqueta</strong> — para ML: chama Edge
+                  Function
+                  <code>gerar-etiqueta-ml</code>. Para demais: chama
+                  <code>adic-carrinho-melhorenvio</code> +{" "}
+                  <code>processar_etiqueta_em_envio_de_pedido</code>. O PDF é
+                  exibido em modal.
+                </li>
+                <li>
+                  <strong>Modal de confirmação de envio</strong> — após abrir o
+                  link da etiqueta, aparece <code>ConfirmEnvioData</code>{" "}
+                  pedindo que o operador confirme o despacho. Ao confirmar:
+                  status → <code>ENVIADO_STATUS_ID</code>, registra histórico
+                  via
+                  <code>registrarHistoricoMovimentacao()</code> e avança para o
+                  próximo pedido.
+                </li>
+              </ol>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Modo Lista por Plataforma (modoListaPorPlataforma)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                Quando o operador seleciona um filtro de plataforma, o sistema
+                entra em
+                <strong> modo fila</strong>: carrega todos os pedidos em
+                logística daquela plataforma, ordena com{" "}
+                <code>sortPedidos</code> e navega por eles sequencialmente.
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <li>Botões ChevronLeft / ChevronRight para navegar na fila</li>
+                <li>Indicador "X de Y pedidos" no topo</li>
+                <li>
+                  Ao concluir um pedido (
+                  <code>avancarParaProximoPedidoAposConclusao</code>): remove o
+                  concluído da lista e carrega o primeiro restante
+                </li>
+                <li>
+                  Se a fila zerar, volta ao estado inicial de bipagem livre
+                </li>
+                <li>
+                  Filtros de produto/variação aplicados na busca da fila (via
+                  join em <code>itens_pedido</code>)
+                </li>
+              </ul>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Painel de Itens Pendentes (logItems)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                Quando não há nenhum pedido em processamento, o lado esquerdo
+                exibe os cards de itens que ainda precisam ser enviados,
+                agrupados por produto/variação com contagem total.
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  Filtra pedidos com{" "}
+                  <code>status_id = LOGISTICA_STATUS_ID</code> e{" "}
+                  <code>etiqueta_envio_id = TARGET_ETIQUETA_ID</code>
+                </li>
+                <li>
+                  Agrega itens por chave <code>produto_id + variacao_id</code>{" "}
+                  (Map de acumulação)
+                </li>
+                <li>
+                  Busca nomes e imagens dos produtos/variações em paralelo (
+                  <code>Promise.all</code>)
+                </li>
+                <li>
+                  Clicar em um card de item abre{" "}
+                  <code>produtoPedidosModal</code> — lista todos os pedidos que
+                  contêm aquele produto
+                </li>
+                <li>
+                  Recarregado automaticamente quando{" "}
+                  <code>filterPlataformaId</code> ou <code>filterProdutos</code>{" "}
+                  mudam (<code>useEffect</code>)
+                </li>
+              </ul>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Cards de Plataforma (plataformasCards)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                Cards colapsáveis que mostram quantos pedidos prontos existem
+                por plataforma. Expandir um card (<code>openPlatformId</code>)
+                lista os pedidos com paginação de
+                <code> PLATFORM_PAGE_SIZE = 4</code> por página.
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  Clique no card → carrega{" "}
+                  <code>platformOrderItems[plataformaId]</code>
+                </li>
+                <li>
+                  Paginação controlada por{" "}
+                  <code>platformPage[plataformaId]</code>
+                </li>
+                <li>
+                  Botão "Enviar" em cada pedido inicia o fluxo de bipagem para
+                  aquele pedido específico (<code>targetPedidoIdRef</code>)
+                </li>
+              </ul>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Filtros (Plataforma + Produto/Variação)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                O painel de filtros (<code>showFilters</code>) possui dois
+                filtros independentes:
+              </p>
+              <DocTable
+                headers={["Filtro", "Como funciona"]}
+                rows={[
+                  [
+                    "Plataforma",
+                    "Select carregado com todas as plataformas do Supabase. Ao selecionar, ativa modoListaPorPlataforma e recarrega pedidos.",
+                  ],
+                  [
+                    "Produto / Variação",
+                    "Input de busca com autocomplete (mínimo 2 caracteres). Se produto tem variações, abre modal de seleção de variação. Múltiplos filtros podem ser adicionados (chips removíveis). Filtro aplicado tanto em logItems quanto na fila de pedidos.",
+                  ],
+                ]}
+              />
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Os filtros têm versão temporária (<code>tempFilter*</code>) que
+                só vira filtro efetivo ao clicar em "Aplicar". Isso evita
+                re-renders desnecessários durante a digitação.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Modal: Pedido Já Enviado"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                Se durante a bipação o sistema detectar que o pedido encontrado
+                já tem
+                <code> status_id = ENVIADO_STATUS_ID</code>, abre o modal{" "}
+                <code>pedidoJaEnviadoModalOpen</code>
+                exibindo os dados do pedido e avisando o operador que ele já foi
+                despachado. Útil para evitar duplo-envio.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Modal: Enviar por ID de Pedido"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                Botão alternativo que abre <code>pedidoIdModalOpen</code>. O
+                operador digita um ID externo ou interno e o sistema busca e
+                carrega o pedido diretamente, pulando a etapa de bipação do
+                código de barras do produto. Útil quando o produto não tem
+                código de barras ou o leitor está indisponível.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection title="Saldo Melhor Envio" defaultOpen={false}>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                A função <code>fetchSaldoMelhorEnvio()</code> chama a Edge
+                Function
+                <code> buscar_saldo_melhor_envio</code> via POST com o{" "}
+                <code>access_token</code>
+                da sessão Supabase. O saldo retornado (<code>data.balance</code>
+                ) é exibido no header da página. Se o saldo for inferior a R$50,
+                o botão de geração de etiqueta exibe aviso antes de prosseguir.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Atribuição Automática de Remetente"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                O sistema define automaticamente qual remetente (endereço de
+                saída) usar dependendo da plataforma do pedido, evitando seleção
+                manual:
+              </p>
+              <DocTable
+                headers={["Condição", "Remetente UUID"]}
+                rows={[
+                  [
+                    "Plataformas especiais (ML, Shopee e uma terceira — UUIDs internos)",
+                    "3fc6839c-e959-4dc1-a983-f61d557e50ec",
+                  ],
+                  [
+                    "Todas as demais plataformas",
+                    "128a7de7-d649-43e1-8ba3-2b54c3496b14",
+                  ],
+                ]}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="FULL_PEDIDO_SELECT — Query Completa do Pedido"
+              defaultOpen={false}
+            >
+              <CodeBlock>{`// Select string usado ao carregar pedidos completos para bipagem
+const FULL_PEDIDO_SELECT = \`
+  id, id_externo, plataforma_id, shipping_id, urgente, status_id,
+  criado_em, remetente_id, link_etiqueta, etiquetas_uploads, retirada,
+  responsavel:usuarios(id, nome, img_url),
+  plataformas(id, nome, img_url),
+  itens_pedido(
+    id, produto_id, variacao_id, quantidade,
+    preco_unitario, codigo_barras, pintado,
+    produto:produtos(id, nome, sku, img_url),
+    variacao:variacoes_produto(id, nome, sku, img_url)
+  )
+\`;`}</CodeBlock>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                O campo <code>retirada</code> foi adicionado na migração{" "}
+                <code>20260417000001</code>. Quando <code>retirada = true</code>
+                , o pedido é retirada presencial — não gera etiqueta de envio.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Registrar Histórico após Envio"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                Após confirmar o envio no modal de confirmação, a página chama:
+              </p>
+              <CodeBlock>{`await registrarHistoricoMovimentacao(
+  pedidoId,
+  \`Pedido enviado — etiqueta gerada via \${plataformaNome}\`,
+  userId   // buscado via supabase.auth.getUser() no useEffect inicial
+);`}</CodeBlock>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Isso garante rastreabilidade completa de quem despachou cada
+                pedido e quando.
+              </p>
+            </CollapsibleSection>
+
+            {/* ── ENVIO POR ETIQUETA ── */}
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mt-6">
+              EnvioPorEtiqueta.tsx — Envio com Etiquetas Manuais
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Página para pedidos que já possuem etiquetas em PDF (enviadas
+              externamente pelo vendedor), não geradas pelo Melhor Envio. Usa
+              fluxo de 3 etapas obrigatórias.
+            </p>
+
+            <CollapsibleSection title="Fluxo de 3 Etapas" defaultOpen={false}>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  <strong>Filtro automático</strong> — exibe apenas pedidos com{" "}
+                  <code>etiquetas_uploads</code>
+                  não vazio e <code>status_id ≠ ENVIADO</code>.
+                </li>
+                <li>
+                  <strong>1ª Etapa — Bipação</strong> — confirmação dos códigos
+                  de barras de cada item.
+                </li>
+                <li>
+                  <strong>2ª Etapa — Visualizar etiquetas</strong> — só liberada
+                  após todos os itens bipados. Cada etiqueta PDF deve ser
+                  aberta/visualizada antes de continuar.
+                </li>
+                <li>
+                  <strong>3ª Etapa — Confirmar envio</strong> — botão liberado
+                  somente após todas as etiquetas visualizadas. Registra
+                  responsável, data/hora e muda status para ENVIADO.
+                </li>
+              </ol>
+            </CollapsibleSection>
+
+            {/* ── LOGISTICA_OLD ── */}
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mt-8 flex items-center gap-2">
+              <Package2 className="w-5 h-5 text-yellow-500" />
+              Logistica_old.tsx — Versão Anterior (Preservada)
+            </h3>
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg p-4">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium mb-1">
+                ⚠️ Arquivo preservado intencionalmente em{" "}
+                <code>old_codigos/Logistica_old.tsx</code>
+              </p>
+              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                Esta versão contém funcionalidades mais complexas que foram
+                removidas da versão atual para simplificação do fluxo de
+                trabalho. <strong>Não deve ser deletada</strong> — pode ser
+                reativada caso o negócio precise das funcionalidades de gestão
+                de pacotes e controle de itens embalados individualmente.
+              </p>
+            </div>
+
+            <CollapsibleSection
+              title="Diferenças Principais: Old vs. Atual"
+              defaultOpen={true}
+            >
+              <DocTable
+                headers={[
+                  "Funcionalidade",
+                  "Logistica_old.tsx",
+                  "Logistica.tsx (atual)",
+                ]}
+                rows={[
+                  [
+                    "Abas principais",
+                    "3 abas: 'itens-produzir' | 'pacotes' | 'enviar' (logisticaMainTab)",
+                    "Sem abas — fluxo único de bipagem",
+                  ],
+                  [
+                    "Campo embalado",
+                    "itens_pedido têm campo embalado (boolean) — rastreado por item",
+                    "Campo embalado não está no FULL_PEDIDO_SELECT atual",
+                  ],
+                  [
+                    "Contagem de bipagem",
+                    "foundItemScans: Record<string, number> — conta quantas vezes cada item foi bipado",
+                    "foundItemIds: string[] — apenas marca item como confirmado",
+                  ],
+                  [
+                    "Pacotes",
+                    "Sistema completo de 'pacotes': comuns vs incomuns, disponível/parcial/indisponível",
+                    "Sem gestão de pacotes",
+                  ],
+                  [
+                    "Modal entrada no pacote",
+                    "entradaPacoteModal — dar entrada quando o pacote de produtos chega",
+                    "Não existe",
+                  ],
+                  [
+                    "Pedidos enviados por plataforma",
+                    "openEnviadosId + enviadosContagem + pedidosEnviadosCache — painel de enviados por card",
+                    "Não existe",
+                  ],
+                  [
+                    "Atrasados",
+                    "fetchAtrasados() — busca pedidos com data_logistica_urgente vencida",
+                    "Não existe",
+                  ],
+                  [
+                    "Pacotes liberados",
+                    "pacotesLiberados + modal — lista pacotes disponíveis para envio",
+                    "Não existe",
+                  ],
+                  [
+                    "Baixa de categoria",
+                    "baixaCategoriaModal — registrar que uma quantidade de itens foi produzida/separada",
+                    "Não existe",
+                  ],
+                  [
+                    "Itens produzidos",
+                    "produzidosPorGrupo + itemProduzidoFlash — controle visual de itens produzidos",
+                    "Não existe",
+                  ],
+                  [
+                    "Aba sub-pacotes",
+                    "pacotesSubTab: 'comuns' | 'incomuns' e pacotesDisponivelTab: 'disponivel'|'parcial'|'indisponivel'",
+                    "Não existe",
+                  ],
+                  [
+                    "sortPedidosEnvio()",
+                    "Versão especial que prioriza pedidos com pacote_disponivel = true antes da ordenação padrão",
+                    "Apenas sortPedidos() padrão",
+                  ],
+                  [
+                    "openSections",
+                    "Estado para abrir/fechar seções 'produtos', 'comuns', 'incomuns' independentemente",
+                    "Não existe",
+                  ],
+                  [
+                    "pacote_disponivel no SELECT",
+                    "Incluído no FULL_PEDIDO_SELECT + filtro .eq('pacote_disponivel', true)",
+                    "Não incluído no FULL_PEDIDO_SELECT atual",
+                  ],
+                ]}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Fluxo de Abas do Old (logisticaMainTab)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                A versão antiga tinha 3 abas no topo da página:
+              </p>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  <strong>itens-produzir</strong> — Lista os itens que ainda
+                  precisam ser separados/produzidos. O operador registrava a
+                  baixa via <code>baixaCategoriaModal</code>, informando
+                  quantidade produzida. O feedback era o flash{" "}
+                  <code>itemProduzidoFlash</code>.
+                </li>
+                <li>
+                  <strong>pacotes</strong> — Gestão dos pacotes de envio.
+                  Sub-abas por tipo:
+                  <em> comuns</em> (produtos padrão) vs <em>incomuns</em>{" "}
+                  (produtos especiais/oversized). E sub-abas de disponibilidade:{" "}
+                  <em>disponivel</em> / <em>parcial</em> / <em>indisponivel</em>
+                  baseado em se o pacote está completo. Modal{" "}
+                  <code>entradaPacoteModal</code> para dar entrada quando o
+                  pacote físico chegava da produção.
+                </li>
+                <li>
+                  <strong>enviar</strong> — Fluxo de bipagem + envio, similar ao
+                  atual, mas com
+                  <code> sortPedidosEnvio()</code> que priorizava pedidos com{" "}
+                  <code>pacote_disponivel = true</code>.
+                </li>
+              </ol>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Campo embalado (itens_pedido)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                Na versão antiga, cada <code>item_pedido</code> tinha um campo
+                booleano
+                <code> embalado</code>. O sistema rastreava separadamente:
+              </p>
+              <CodeBlock>{`// Old: quantidade_embalada vs quantidade_total por item
+const quantidadeEmbalada = item.embalado ? quantidade : 0;
+
+// No painel de itens:
+// Exibia "X embalados de Y total" por produto
+// Cor diferente para itens parcialmente embalados`}</CodeBlock>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Na versão atual esse campo não é consultado — o controle foi
+                simplificado para apenas "confirmado via bipagem" (boolean por
+                pedido).
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Como reativar o Logistica_old.tsx"
+              defaultOpen={false}
+            >
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  Copiar <code>old_codigos/Logistica_old.tsx</code> para{" "}
+                  <code>src/pages/Logistica.tsx</code>
+                </li>
+                <li>
+                  Verificar se os campos <code>embalado</code> e{" "}
+                  <code>pacote_disponivel</code> ainda existem no banco
+                  (migrações <code>20260311000001</code> adicionou{" "}
+                  <code>pacote_disponivel</code>)
+                </li>
+                <li>
+                  Confirmar que a tabela <code>pacotes</code> existe (migração{" "}
+                  <code>20260317000001</code>)
+                </li>
+                <li>
+                  Testar o fluxo de abas e pacotes em ambiente de
+                  desenvolvimento antes de publicar
+                </li>
+              </ol>
             </CollapsibleSection>
           </section>
 
@@ -2541,6 +3224,186 @@ supabase/
                 ],
               ]}
             />
+
+            <CollapsibleSection title="useAuth — Detalhes de Implementação">
+              <p className="text-sm mb-2">
+                Implementado como um <strong>Context Provider</strong> — envolve
+                todo o sistema e disponibiliza os dados do usuário logado para
+                qualquer componente filho com uma única chamada:{" "}
+                <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  const {"{"} user, hasPermission, signOut {"}"} = useAuth()
+                </code>
+                .
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                <li>
+                  <strong>Inicialização</strong> — ao montar, verifica a sessão
+                  ativa no Supabase Auth. Se houver sessão válida, busca o
+                  perfil completo do usuário na view{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    usuarios_completos
+                  </code>
+                </li>
+                <li>
+                  <strong>Escuta de mudanças</strong> — monitora eventos de
+                  autenticação (login, logout, expiração de token) via{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    onAuthStateChange
+                  </code>{" "}
+                  e atualiza o estado automaticamente
+                </li>
+                <li>
+                  <strong>hasPermission(id)</strong> — verifica se o array{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    permissions
+                  </code>{" "}
+                  contém o ID solicitado. Uso:{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    {"if (hasPermission(50)) { // mostrar dashboard }"}
+                  </code>
+                </li>
+                <li>
+                  <strong>signOut()</strong> — faz logout e trata o caso de
+                  sessão já expirada (
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    session_not_found
+                  </code>
+                  ) sem lançar erro
+                </li>
+                <li>
+                  <strong>deleteUser(userId)</strong> — tenta excluir o usuário
+                  por múltiplos métodos da API do Supabase para garantir remoção
+                  completa tanto do Auth quanto do banco
+                </li>
+              </ul>
+            </CollapsibleSection>
+
+            <CollapsibleSection title="useEmpresaColors — Detalhes de Implementação">
+              <p className="text-sm mb-2">
+                Responsável por aplicar a identidade visual da empresa em todo o
+                sistema dinamicamente.
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                <li>
+                  <strong>Busca do banco</strong> — ao montar, consulta o campo{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    cores_hsl
+                  </code>{" "}
+                  da tabela{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    empresas
+                  </code>{" "}
+                  para o{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    empresa_id
+                  </code>{" "}
+                  do usuário logado
+                </li>
+                <li>
+                  <strong>Aplicação CSS</strong> — define variáveis CSS no
+                  elemento{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    document.documentElement
+                  </code>
+                  , tornando-as disponíveis globalmente: --custom-50,
+                  --custom-100, ..., --custom-950, --gradient-primary
+                </li>
+                <li>
+                  <strong>Modo escuro</strong> — utiliza um{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    MutationObserver
+                  </code>{" "}
+                  para detectar quando a classe{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    dark
+                  </code>{" "}
+                  é adicionada/removida do{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    &lt;html&gt;
+                  </code>{" "}
+                  e reaplicar as cores corretas para cada modo
+                </li>
+                <li>
+                  <strong>Fallback</strong> — se a empresa não tiver cores
+                  configuradas, usa uma paleta padrão (azul) para que o sistema
+                  não fique sem estilo
+                </li>
+              </ul>
+            </CollapsibleSection>
+
+            <CollapsibleSection title="useIsMobile — Detalhes de Implementação">
+              <p className="text-sm mb-2">
+                Hook simples que monitora o tamanho da janela do navegador em
+                tempo real.
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                <li>
+                  <strong>Ponto de corte</strong> — a tela é considerada
+                  "mobile" quando sua largura é menor que <strong>768px</strong>{" "}
+                  (breakpoint{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    md
+                  </code>{" "}
+                  do Tailwind)
+                </li>
+                <li>
+                  <strong>Media Query</strong> — usa{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    window.matchMedia("(max-width: 767px)")
+                  </code>{" "}
+                  para monitorar mudanças de tamanho sem precisar escutar o
+                  evento{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    resize
+                  </code>{" "}
+                  diretamente
+                </li>
+                <li>
+                  <strong>Uso típico</strong> — exibir componentes diferentes
+                  para mobile e desktop:
+                  <CodeBlock>{`const isMobile = useIsMobile();
+return isMobile ? <MobileMenu /> : <DesktopSidebar />;`}</CodeBlock>
+                </li>
+              </ul>
+            </CollapsibleSection>
+
+            <CollapsibleSection title="useToast — Detalhes de Implementação">
+              <p className="text-sm mb-2">
+                Sistema centralizado de mensagens temporárias (toasts) que
+                aparecem no canto da tela. Baseado em estado global — qualquer
+                componente pode disparar um toast sem precisar de props.
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                <li>
+                  <strong>Limite</strong> — exibe no máximo{" "}
+                  <strong>1 toast</strong> por vez (TOAST_LIMIT = 1). Se um novo
+                  for disparado antes do anterior fechar, o anterior é
+                  substituído
+                </li>
+                <li>
+                  <strong>Ciclo de vida</strong> — cada toast passa pelos
+                  estados: adicionado → visível → removido. A remoção acontece
+                  automaticamente após o tempo definido ou ao fechar manualmente
+                </li>
+                <li>
+                  <strong>Uso</strong>:
+                  <CodeBlock>{`const { toast } = useToast();
+toast({
+  title: "Pedido salvo!",
+  description: "O pedido #123 foi atualizado.",
+  variant: "default", // ou "destructive" para erros
+});`}</CodeBlock>
+                </li>
+                <li>
+                  <strong>Integração com Sonner</strong> — o{" "}
+                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                    Toaster
+                  </code>{" "}
+                  do shadcn/ui é montado globalmente no App.tsx para renderizar
+                  os toasts na tela
+                </li>
+              </ul>
+            </CollapsibleSection>
           </section>
 
           {/* ═══════════════════════════════════════════════ */}
@@ -2578,7 +3441,7 @@ supabase/
                 ],
                 [
                   "produtos",
-                  "Catálogo de produtos cadast rados",
+                  "Catálogo de produtos cadastrados",
                   "Pode ter embalagem vinculada",
                 ],
                 [
@@ -2726,7 +3589,7 @@ supabase/
                 [
                   "achar_item_por_codigo_bipado",
                   "codigo_bipado (texto)",
-                  "Encontra na fila de logística o pedido correto para aquele código de barras. Ordena por: urgente primeiro → mais antigo → menos itens → maior quantidade do m esmo produto",
+                  "Encontra na fila de logística o pedido correto para aquele código de barras. Ordena por: urgente primeiro → mais antigo → menos itens → maior quantidade do mesmo produto",
                 ],
                 [
                   "trazer_cliente_info",
@@ -2936,6 +3799,94 @@ POST /functions/v1/calculo-frete-melhorenvio
   { "name": "SEDEX", "price": "25.90", "delivery_time": 3, ... },
   { "name": "PAC", "price": "15.50", "delivery_time": 7, ... }
 ]`}</CodeBlock>
+            </CollapsibleSection>
+
+            <CollapsibleSection title="buscar_saldo_melhor_envio — Verificação de Saldo">
+              <p className="text-sm">
+                Consulta o saldo disponível na conta do Melhor Envio da empresa.
+                É chamada antes de qualquer geração de etiqueta para verificar
+                se há crédito suficiente (mínimo exigido: R$50). Usada em três
+                locais:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm mt-2">
+                <li>
+                  <strong>Logística</strong> — verificada automaticamente ao
+                  iniciar a bipação de cada pedido
+                </li>
+                <li>
+                  <strong>Comercial</strong> — verificada antes do "Envio
+                  Rápido" em lote para garantir que há saldo para todos os
+                  pedidos selecionados
+                </li>
+                <li>
+                  <strong>Pedido</strong> — verificada ao clicar em "ENVIAR O
+                  MAIS BARATO"
+                </li>
+              </ul>
+              <CodeBlock>{`// Request
+POST /functions/v1/buscar_saldo_melhor_envio
+{ "empresa_id": "uuid-da-empresa" }
+
+// Response
+{ "saldo": 127.50 }  // ou erro se a conta não estiver configurada`}</CodeBlock>
+            </CollapsibleSection>
+
+            <CollapsibleSection title="adic-carrinho-melhorenvio + processar_etiqueta_em_envio_de_pedido — Fluxo de Geração de Etiqueta">
+              <p className="text-sm">
+                Estas duas funções trabalham juntas para gerar uma etiqueta
+                completa no Melhor Envio. São chamadas em sequência:
+              </p>
+              <ol className="list-decimal list-inside space-y-2 text-sm mt-2">
+                <li>
+                  <strong>adic-carrinho-melhorenvio</strong> — recebe o ID da
+                  opção de frete escolhida na cotação e adiciona ao "carrinho"
+                  do Melhor Envio (passo obrigatório pela API deles antes de
+                  gerar a etiqueta). Retorna o ID do pedido criado no Melhor
+                  Envio
+                </li>
+                <li>
+                  <strong>processar_etiqueta_em_envio_de_pedido</strong> —
+                  recebe o ID do pedido criado no passo anterior, finaliza o
+                  pagamento da etiqueta e retorna a URL do PDF. Também atualiza
+                  o pedido no banco com o link da etiqueta e muda o status para
+                  ENVIADO automaticamente
+                </li>
+              </ol>
+              <CodeBlock>{`// Fluxo completo:
+1. POST adic-carrinho-melhorenvio
+   { "service_id": 1, "remetente": {...}, "destinatario": {...}, "volumes": [...] }
+   → { "pedido_id": 123456 }
+
+2. POST processar_etiqueta_em_envio_de_pedido
+   { "pedido_id_melhor_envio": 123456, "pedido_id": "uuid-do-pedido" }
+   → { "url_etiqueta": "https://melhorenvio.com.br/..." }`}</CodeBlock>
+            </CollapsibleSection>
+
+            <CollapsibleSection title="processar-etiqueta-melhorenvio — Download do PDF da Etiqueta">
+              <p className="text-sm">
+                Função complementar usada especificamente na tela de{" "}
+                <strong>Pedido</strong> para obter o arquivo PDF de uma etiqueta
+                já gerada. Diferente da função anterior, esta não gera uma nova
+                etiqueta — ela busca e processa o PDF de uma etiqueta existente
+                no Melhor Envio, convertendo-o de Base64 para um arquivo binário
+                que pode ser aberto diretamente no navegador para impressão.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection title="gerar-etiqueta-ml — Etiqueta do Mercado Livre">
+              <p className="text-sm">
+                Gera a etiqueta de envio diretamente pelo sistema do Mercado
+                Livre (não pelo Melhor Envio). Usada exclusivamente quando o
+                pedido veio da plataforma Mercado Livre e possui um código de
+                envio do ML (campo <code>shipping_id</code>). Retorna o PDF da
+                etiqueta no formato do Mercado Livre para impressão. Disponível
+                nos botões "Etiqueta ML" na Logística e no Pedido.
+              </p>
+              <CodeBlock>{`// Request
+POST /functions/v1/gerar-etiqueta-ml
+{ "shipping_id": "123456789", "empresa_id": "uuid-da-empresa" }
+
+// Response: PDF binário da etiqueta do Mercado Livre`}</CodeBlock>
             </CollapsibleSection>
           </section>
 
@@ -3232,6 +4183,1051 @@ var(--gradient-primary)`}</CodeBlock>
                   verificação dos dígitos verificadores (14 dígitos)
                 </li>
               </ul>
+            </CollapsibleSection>
+          </section>
+
+          {/* ─── Dashboard Comercial ─── */}
+          <section id="dashboard-comercial" className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <BarChart2 className="w-6 h-6 text-purple-500" />
+              Dashboard Comercial
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              Painel de controle exclusivo para a equipe comercial, acessível em{" "}
+              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                /dashboard-comercial
+              </code>
+              . Utiliza{" "}
+              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                ComercialSidebar
+              </code>{" "}
+              como navegação lateral e exibe métricas avançadas de vendas,
+              leads, conversão e upsell — todas calculadas via RPCs no Supabase.
+            </p>
+
+            <CollapsibleSection
+              title="Tipos de Dados (TypeScript)"
+              defaultOpen={false}
+            >
+              <DocTable
+                headers={["Tipo", "Campos Principais", "Descrição"]}
+                rows={[
+                  [
+                    "PixMetricsRow",
+                    "total_periodo, total_hoje, taxa_conversao_periodo, valor_total_periodo, ticket_medio_periodo",
+                    "Métricas de leads de PIX por tipo de lead",
+                  ],
+                  [
+                    "TypeBotMetricsRow",
+                    "tipo_de_lead_nome, id_type, total_hoje, total_30_dias, taxa_conversao_periodo",
+                    "Métricas de funil do TypeBot por categoria",
+                  ],
+                  [
+                    "PixDailyRow",
+                    "dia, total_entradas, total_vendidos, valor_total",
+                    "Entradas e conversões diárias de PIX",
+                  ],
+                  [
+                    "PixConvertedByResponsavelRow",
+                    "responsavel_nome, total_convertidos, valor_total_convertido, ticket_medio_convertido",
+                    "Conversões de PIX por vendedora",
+                  ],
+                  [
+                    "PixRecuperacaoYampiRow",
+                    "total_leads, total_recuperados, taxa_recuperacao_pct, valor_total_recuperado",
+                    "Taxa de recuperação de carrinho Yampi via PIX",
+                  ],
+                  [
+                    "YampiUpsellMetricsRow",
+                    "pedidos_com_inclusao_itens, taxa_inclusao_itens_pct, aumento_ticket_medio_pct, faturamento_total_yampi",
+                    "Upsell no checkout Yampi — comparativo de tickets",
+                  ],
+                  [
+                    "YampiUpsellIncrementoRow",
+                    "pedidos_com_incremento, taxa_incremento_pct, faturamento_com_upsell, pedidos_sem_alteracao",
+                    "Incremento de pedidos por upsell/edição manual",
+                  ],
+                  [
+                    "EntradaValoresUpsellMetricsRow",
+                    "total_upsells, faturamento_acrescido, ticket_medio_antes, ticket_medio_depois",
+                    "Métricas de acréscimo de valor por upsell via entrada_valores",
+                  ],
+                  [
+                    "TopProdutosUpsellRow",
+                    "produto_nome, total_inclusoes, quantidade_total, valor_total",
+                    "Top produtos adicionados via upsell",
+                  ],
+                  [
+                    "ConversaoLeadsPorResponsavelRow",
+                    "responsavel_nome, total_leads, taxa_conversao_pct, valor_total_convertido",
+                    "Conversão de leads por vendedora",
+                  ],
+                ]}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection title="Gráficos (Recharts)" defaultOpen={false}>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                O dashboard utiliza os seguintes componentes do{" "}
+                <strong>Recharts</strong>:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  <strong>AreaChart + Area</strong> — evolução temporal de
+                  entradas/vendas de PIX
+                </li>
+                <li>
+                  <strong>LineChart</strong> — linhas comparativas entre dois
+                  períodos
+                </li>
+                <li>
+                  <strong>BarChart + Bar</strong> — comparativos de conversão
+                  por responsável
+                </li>
+                <li>
+                  <strong>PieChart + Pie + Cell</strong> — distribuição de leads
+                  por tipo
+                </li>
+                <li>
+                  <strong>CartesianGrid, XAxis, YAxis, Tooltip, Legend</strong>{" "}
+                  — elementos padrão
+                </li>
+                <li>
+                  <strong>ResponsiveContainer</strong> — todos os gráficos usam
+                  100% de largura
+                </li>
+              </ul>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Navegação por Período"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                O dashboard tem navegação entre períodos usando{" "}
+                <strong>date-fns</strong>:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  <code>startOfMonth</code> + <code>subMonths</code> — navegar
+                  para meses anteriores
+                </li>
+                <li>
+                  <code>format(date, "MMMM yyyy", {"{ locale: ptBR }"})</code> —
+                  título do período exibido
+                </li>
+                <li>
+                  <code>isWithinInterval</code> / <code>isSameDay</code> —
+                  filtros de intervalo em gráficos diários
+                </li>
+                <li>
+                  Botões de ChevronLeft/ChevronRight para avançar e recuar
+                </li>
+                <li>
+                  Popover com calendário personalizado para seleção de data
+                  customizada
+                </li>
+              </ul>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="RPCs Supabase Utilizadas"
+              defaultOpen={false}
+            >
+              <DocTable
+                headers={["RPC", "Retorna", "Arquivo de Migração"]}
+                rows={[
+                  [
+                    "comercial_pix_leads_metrics",
+                    "PixMetricsRow[]",
+                    "20260307000001",
+                  ],
+                  [
+                    "comercial_typebot_leads_metrics",
+                    "TypeBotMetricsRow[]",
+                    "20260313000005",
+                  ],
+                  ["comercial_pix_por_dia", "PixDailyRow[]", "20260307000001"],
+                  [
+                    "comercial_carrinho_convertidos_por_responsavel",
+                    "PixConvertedByResponsavelRow[]",
+                    "20260307000003",
+                  ],
+                  [
+                    "comercial_get_recuperacao_pix_yampi",
+                    "PixRecuperacaoYampiRow",
+                    "20260324000001",
+                  ],
+                  [
+                    "comercial_yampi_upsell_metrics",
+                    "YampiUpsellMetricsRow",
+                    "20260307000002",
+                  ],
+                  [
+                    "comercial_yampi_upsell_incremento",
+                    "YampiUpsellIncrementoRow",
+                    "20260312000002",
+                  ],
+                  [
+                    "comercial_entrada_valores_upsell_metrics",
+                    "EntradaValoresUpsellMetricsRow",
+                    "20260313000002",
+                  ],
+                  [
+                    "comercial_top_produtos_upsell",
+                    "TopProdutosUpsellRow[]",
+                    "20260316000001",
+                  ],
+                  [
+                    "comercial_conversao_leads_por_responsavel",
+                    "ConversaoLeadsPorResponsavelRow[]",
+                    "20260307000003",
+                  ],
+                  [
+                    "comercial_get_metricas_pix_convertidos",
+                    "objeto com resumo de conversão",
+                    "20260323000005",
+                  ],
+                ]}
+              />
+            </CollapsibleSection>
+          </section>
+
+          {/* ─── Histórico de Movimentações ─── */}
+          <section id="historico" className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <History className="w-6 h-6 text-blue-500" />
+              Histórico de Movimentações
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              Sistema de auditoria que registra todas as alterações feitas em
+              pedidos. O módulo é composto pela biblioteca{" "}
+              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                src/lib/historicoMovimentacoes.ts
+              </code>{" "}
+              e pela página{" "}
+              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                src/pages/HistoricoMovimentacoes.tsx
+              </code>
+              .
+            </p>
+
+            <CollapsibleSection
+              title="Interface HistoricoMovimentacao"
+              defaultOpen={true}
+            >
+              <CodeBlock>{`interface HistoricoMovimentacao {
+  id: number;
+  created_at: string;
+  alteracao: string;        // Descrição da alteração (ex: "Status alterado para Enviado")
+  user_id: string | null;
+  pedido_id: string | null;
+  usuario?: {               // Join com tabela de usuários
+    nome: string;
+    email: string;
+    img_url?: string;
+  };
+  pedido?: {                // Join com tabela de pedidos
+    id_externo: string;     // ID visível ao usuário (ex: "Y-1234")
+  };
+}`}</CodeBlock>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="registrarHistoricoMovimentacao()"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                Insere um registro na tabela{" "}
+                <code>historico_movimentacoes</code>. Se o <code>userId</code>
+                não for passado, busca o usuário logado via{" "}
+                <code>supabase.auth.getUser()</code>.
+              </p>
+              <CodeBlock>{`// Uso básico (userId inferido automaticamente)
+await registrarHistoricoMovimentacao(
+  pedidoId,
+  "Status alterado para Enviado"
+);
+
+// Uso com userId explícito
+await registrarHistoricoMovimentacao(
+  pedidoId,
+  "Endereço corrigido pelo suporte",
+  "uuid-do-usuario"
+);
+
+// Retorna { success: true } ou { success: false, error }`}</CodeBlock>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="buscarHistoricoMovimentacoes()"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                Consulta o histórico com filtros opcionais e join com
+                usuário/pedido.
+              </p>
+              <CodeBlock>{`const { data, error } = await buscarHistoricoMovimentacoes({
+  pedidoId: "uuid-do-pedido",   // Filtrar por pedido
+  userId: "uuid-do-usuario",    // Filtrar por usuário
+  dataInicio: "2024-01-01",     // ISO 8601
+  dataFim: "2024-12-31",        // ISO 8601
+  limit: 50,                    // Paginação
+  offset: 0,
+});`}</CodeBlock>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Retorna{" "}
+                <code>{"{ data: HistoricoMovimentacao[], error }"}</code>. Os
+                campos <code>usuario</code> e <code>pedido</code> são populados
+                via select aninhado do Supabase.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Página HistoricoMovimentacoes.tsx"
+              defaultOpen={false}
+            >
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  Carrega os 100 registros mais recentes ao montar o componente
+                </li>
+                <li>
+                  Busca client-side por: texto da alteração, nome do usuário,
+                  e-mail, ID externo do pedido
+                </li>
+                <li>
+                  Exibe Avatar com foto do usuário (fallback para iniciais)
+                </li>
+                <li>
+                  Data formatada com <code>date-fns ptBR</code>
+                </li>
+                <li>
+                  Botão "Atualizar" com ícone <code>RefreshCw</code> recarrega
+                  os dados
+                </li>
+                <li>Skeleton loading durante o carregamento inicial</li>
+              </ul>
+            </CollapsibleSection>
+          </section>
+
+          {/* ─── Web Push (PWA) ─── */}
+          <section id="push-notifications" className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Smartphone className="w-6 h-6 text-green-500" />
+              Web Push — PWA
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              O sistema suporta <strong>Web Push Notifications</strong> via a
+              API nativa do browser. A stack envolve Service Worker (
+              <code>public/sw.js</code>), o hook{" "}
+              <code>usePushNotifications</code>, a tabela{" "}
+              <code>push_subscriptions</code> e a Edge Function{" "}
+              <code>send-push-notification</code>.
+            </p>
+
+            <CollapsibleSection
+              title="Fluxo Completo de Subscrição"
+              defaultOpen={true}
+            >
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  Usuário clica em "Ativar notificações" → chama{" "}
+                  <code>subscribe()</code>
+                </li>
+                <li>
+                  Hook verifica suporte a <code>serviceWorker</code> +{" "}
+                  <code>PushManager</code> no browser
+                </li>
+                <li>
+                  Verifica se <code>VITE_VAPID_PUBLIC_KEY</code> está definida
+                </li>
+                <li>
+                  Busca <code>userId</code> via{" "}
+                  <code>supabase.auth.getSession()</code>
+                </li>
+                <li>
+                  Solicita permissão ao browser:{" "}
+                  <code>Notification.requestPermission()</code>
+                </li>
+                <li>
+                  Registra o Service Worker (<code>/sw.js</code>) via{" "}
+                  <code>navigator.serviceWorker.register</code>
+                </li>
+                <li>
+                  Cria a subscription via{" "}
+                  <code>registration.pushManager.subscribe()</code> com a VAPID
+                  key
+                </li>
+                <li>
+                  Salva <code>endpoint</code>, <code>p256dh</code> e{" "}
+                  <code>auth</code> na tabela <code>push_subscriptions</code>{" "}
+                  (upsert por <code>user_id</code>)
+                </li>
+              </ol>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="PushStatus — Estados do Hook"
+              defaultOpen={false}
+            >
+              <DocTable
+                headers={["Estado", "Significado"]}
+                rows={[
+                  ["idle", "Estado inicial — nenhuma ação tomada"],
+                  ["requesting", "Aguardando permissão do browser"],
+                  ["subscribed", "Usuário inscrito com sucesso"],
+                  ["denied", "Usuário negou a permissão"],
+                  ["unsupported", "Browser não suporta Web Push"],
+                  [
+                    "error",
+                    "Erro inesperado (VAPID ausente, usuário não autenticado, etc.)",
+                  ],
+                ]}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Service Worker (public/sw.js)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                O SW é minimalista e lida apenas com push e clique em
+                notificações:
+              </p>
+              <CodeBlock>{`// Eventos tratados pelo Service Worker
+install  → skipWaiting()            // Ativa imediatamente
+activate → clients.claim()          // Assume controle de todas as abas
+
+push     → showNotification(title, {
+  body, icon, badge, tag,
+  renotify: true,
+  requireInteraction: true,         // Notif persiste até o usuário interagir
+  vibrate: [200, 100, 200],
+  actions: [{ action: "open", title: "Abrir" }],
+  data: { url }                     // URL para abrir ao clicar
+})
+
+notificationclick → fecha a notif; navega/abre a URL`}</CodeBlock>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Tabela push_subscriptions"
+              defaultOpen={false}
+            >
+              <DocTable
+                headers={["Coluna", "Tipo", "Descrição"]}
+                rows={[
+                  [
+                    "user_id",
+                    "uuid (FK)",
+                    "Usuário dono da subscription (unique — upsert)",
+                  ],
+                  [
+                    "endpoint",
+                    "text",
+                    "URL única da subscription no servidor push",
+                  ],
+                  ["p256dh", "text", "Chave pública P-256 para criptografia"],
+                  ["auth", "text", "Segredo de autenticação da subscription"],
+                ]}
+              />
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                A migração{" "}
+                <code>20260304000001_create_push_subscriptions.sql</code> cria a
+                tabela. A migração <code>20260304000002_push_trigger.sql</code>{" "}
+                cria trigger para notificar ao inserir pedidos.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Variável de Ambiente VAPID"
+              defaultOpen={false}
+            >
+              <CodeBlock>{`# .env.local
+VITE_VAPID_PUBLIC_KEY=BMxxxxxx...  # Chave pública VAPID (base64 URL-safe)
+
+# Gerar par de chaves VAPID:
+npx web-push generate-vapid-keys`}</CodeBlock>
+            </CollapsibleSection>
+          </section>
+
+          {/* ─── Tipos de Lead ─── */}
+          <section id="tipos-lead" className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Tags className="w-6 h-6 text-orange-500" />
+              Tipos de Lead
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              Página de gerenciamento das categorias de lead usadas no módulo
+              Comercial. Acessível em{" "}
+              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                /tipos-de-lead
+              </code>
+              , usa o <code>ComercialSidebar</code>. Os tipos são armazenados na
+              tabela <code>tipo_de_lead</code>.
+            </p>
+
+            <CollapsibleSection title="Tipo TipoLead" defaultOpen={false}>
+              <CodeBlock>{`type TipoLead = {
+  id: number;
+  nome: string;             // Nome exibido na UI e nos filtros do Dashboard Comercial
+  img_url: string | null;   // Foto/ícone da categoria (salva no Supabase Storage)
+  id_type: number | null;   // ID do TypeBot associado (null = lead manual)
+};`}</CodeBlock>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Funcionalidades da Página"
+              defaultOpen={false}
+            >
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  <strong>Criar tipo</strong> — formulário com nome, imagem
+                  (upload para Storage) e toggle TypeBot
+                </li>
+                <li>
+                  <strong>Toggle TypeBot</strong> — quando ativado, habilita
+                  campo <code>id_type</code> para mapear o funil do bot
+                </li>
+                <li>
+                  <strong>Upload de imagem</strong> — via{" "}
+                  <code>{"<input type='file'>"}</code> com preview, enviada ao
+                  Supabase Storage
+                </li>
+                <li>
+                  <strong>Listar tipos</strong> — query na tabela{" "}
+                  <code>tipo_de_lead</code> ordenada por <code>id</code>
+                </li>
+                <li>
+                  <strong>Deletar tipo</strong> — com confirmação visual (badge
+                  de loading por item)
+                </li>
+                <li>
+                  Funções RPC usadas: <code>create_tipo_lead</code>,{" "}
+                  <code>delete_tipo_lead</code> (migrations 20260313000003/004)
+                </li>
+              </ul>
+            </CollapsibleSection>
+          </section>
+
+          {/* ─── Componentes Reutilizáveis ─── */}
+          <section id="componentes" className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Component className="w-6 h-6 text-indigo-500" />
+              Componentes Reutilizáveis
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              Todos os componentes customizados estão em{" "}
+              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                src/components/
+              </code>
+              . Abaixo, um mapa de cada subpasta e seus componentes.
+            </p>
+
+            <CollapsibleSection
+              title="Layout (src/components/layout/)"
+              defaultOpen={true}
+            >
+              <DocTable
+                headers={["Componente", "Função"]}
+                rows={[
+                  [
+                    "AppLayout.tsx",
+                    "Shell principal — Header + sidebar + área de conteúdo + PageTransition",
+                  ],
+                  [
+                    "AppHeader.tsx",
+                    "Barra superior — logo, busca global (SearchPanel), notificações, menu de usuário",
+                  ],
+                  [
+                    "AppNavigation.tsx",
+                    "Sidebar principal — itens de navegação, badge de notificações, collapse em mobile",
+                  ],
+                  [
+                    "ComercialSidebar.tsx",
+                    "Sidebar do módulo Comercial — links específicos do módulo",
+                  ],
+                  ["LogisticaSidebar.tsx", "Sidebar do módulo Logística"],
+                  ["EstoqueSidebar.tsx", "Sidebar do módulo Estoque"],
+                  [
+                    "SearchPanel.tsx",
+                    "Painel de busca global com atalho de teclado — busca pedidos, páginas, produtos",
+                  ],
+                  [
+                    "PageTransition.tsx",
+                    "Wrapper de animação de transição entre páginas (framer-motion ou CSS)",
+                  ],
+                  [
+                    "ProtectedRoute.tsx",
+                    "HOC que redireciona para /auth se usuário não estiver autenticado",
+                  ],
+                ]}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Orders (src/components/orders/)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                Componentes do quadro Kanban e cards de pedido:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <li>
+                  <strong>KanbanBoard</strong> — quadro de colunas drag-and-drop
+                  de status de pedidos
+                </li>
+                <li>
+                  <strong>KanbanCard</strong> — card individual de pedido no
+                  Kanban (usado na página Design.tsx para protótipo)
+                </li>
+              </ul>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Shipping (src/components/shipping/)"
+              defaultOpen={false}
+            >
+              <DocTable
+                headers={["Componente", "Função"]}
+                rows={[
+                  [
+                    "CotacaoFreteModal.tsx",
+                    "Modal de cotação de frete via Melhor Envio — exibe opções com preço e prazo",
+                  ],
+                  [
+                    "EmbalagensManager.tsx",
+                    "Gerenciador de embalagens cadastradas — listar, criar, editar, excluir",
+                  ],
+                  [
+                    "EmballagemModal.tsx",
+                    "Modal de criação/edição de embalagem (nome, dimensões, peso)",
+                  ],
+                  [
+                    "RemetentesManager.tsx",
+                    "Gerenciador de endereços de remetente para envios",
+                  ],
+                  [
+                    "RemetenteModal.tsx",
+                    "Modal de criação/edição de remetente",
+                  ],
+                  [
+                    "types.ts",
+                    "Tipos TypeScript compartilhados do módulo de envio",
+                  ],
+                ]}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Modals (src/components/modals/)"
+              defaultOpen={false}
+            >
+              <DocTable
+                headers={["Componente", "Função"]}
+                rows={[
+                  [
+                    "ClientEditModal.tsx",
+                    "Modal de edição de dados do cliente (nome, telefone, endereço)",
+                  ],
+                  [
+                    "EditSelectModal.tsx",
+                    "Modal genérico de edição de campo via <select> — usado para status, plataforma, etc.",
+                  ],
+                ]}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Dashboard (src/components/dashboard/)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                Gráficos e cards de KPI usados nas páginas de Dashboard
+                principal. Incluem componentes de métricas de pedidos, vendas
+                por plataforma, top produtos e comparativos de período — todos
+                usando Recharts.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Notifications (src/components/notifications/)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                Componentes de exibição e centro de notificações em tempo real,
+                conectados ao <code>NotificacoesContext</code> via Supabase
+                Realtime.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="UI (src/components/ui/)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                Todos os primitivos de UI são gerados pelo{" "}
+                <strong>shadcn/ui</strong>. Principais componentes disponíveis:
+              </p>
+              <div className="grid grid-cols-2 gap-1 text-sm text-gray-700 dark:text-gray-300">
+                {[
+                  "Button",
+                  "Input",
+                  "Label",
+                  "Card",
+                  "Badge",
+                  "Avatar",
+                  "Dialog",
+                  "Sheet",
+                  "Popover",
+                  "Tooltip",
+                  "Select",
+                  "Switch",
+                  "Checkbox",
+                  "Table",
+                  "Skeleton",
+                  "Separator",
+                  "ScrollArea",
+                  "Tabs",
+                  "Progress",
+                ].map((c) => (
+                  <code
+                    key={c}
+                    className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs"
+                  >
+                    {c}
+                  </code>
+                ))}
+              </div>
+            </CollapsibleSection>
+          </section>
+
+          {/* ─── Rotas do Sistema ─── */}
+          <section id="rotas" className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Route className="w-6 h-6 text-teal-500" />
+              Rotas do Sistema
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              Todas as rotas são declaradas em{" "}
+              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                src/App.tsx
+              </code>{" "}
+              usando React Router DOM v6. Rotas protegidas são encapsuladas pelo
+              componente <code>ProtectedRoute</code>.
+            </p>
+
+            <CollapsibleSection
+              title="Rotas Protegidas (requerem login)"
+              defaultOpen={true}
+            >
+              <DocTable
+                headers={["Rota", "Componente / Página", "Descrição"]}
+                rows={[
+                  [
+                    "/",
+                    "Index.tsx",
+                    "Página inicial — redireciona para /dashboard",
+                  ],
+                  [
+                    "/dashboard",
+                    "Dashboard.tsx",
+                    "Dashboard principal de pedidos e métricas",
+                  ],
+                  [
+                    "/dashboard-comercial",
+                    "DashboardComercial.tsx",
+                    "Dashboard do módulo Comercial",
+                  ],
+                  [
+                    "/pedido/:id",
+                    "Pedido.tsx",
+                    "Detalhe de um pedido específico",
+                  ],
+                  [
+                    "/logistica",
+                    "Logistica.tsx",
+                    "Módulo de logística e envio de pedidos",
+                  ],
+                  ["/estoque", "Estoque.tsx", "Gestão de estoque de produtos"],
+                  [
+                    "/producao",
+                    "Producao.tsx",
+                    "Fila de produção por faixa de prazo",
+                  ],
+                  ["/comercial", "Comercial.tsx", "Gestão de leads comerciais"],
+                  [
+                    "/contabilidade",
+                    "Contabilidade.tsx",
+                    "Relatórios financeiros e contabilidade",
+                  ],
+                  [
+                    "/pedido-contabilidade/:id",
+                    "PedidoContabilidade.tsx",
+                    "Detalhe de pedido na visão contábil",
+                  ],
+                  [
+                    "/pedidos-enviados",
+                    "PedidosEnviados.tsx",
+                    "Lista de pedidos já enviados",
+                  ],
+                  [
+                    "/pedidos-cancelados",
+                    "PedidosCancelados.tsx",
+                    "Lista de pedidos cancelados",
+                  ],
+                  [
+                    "/pedidos-retornados",
+                    "PedidosRetornados.tsx",
+                    "Lista de pedidos com retorno/devolução",
+                  ],
+                  ["/leads", "Leads.tsx", "Central de leads"],
+                  [
+                    "/tipos-de-lead",
+                    "TiposDeLead.tsx",
+                    "Gerenciamento de categorias de lead",
+                  ],
+                  [
+                    "/sku-plataformas",
+                    "SkuPlataformas.tsx",
+                    "Mapeamento de SKUs entre plataformas",
+                  ],
+                  [
+                    "/envio-por-etiqueta",
+                    "EnvioPorEtiqueta.tsx",
+                    "Envio de pedidos por etiqueta avulsa",
+                  ],
+                  [
+                    "/lista-embalagens",
+                    "ListaEmbalagens.tsx",
+                    "Cadastro de embalagens",
+                  ],
+                  [
+                    "/configuracoes",
+                    "Configuracoes.tsx",
+                    "Configurações do sistema e da empresa",
+                  ],
+                  [
+                    "/historico-movimentacoes",
+                    "HistoricoMovimentacoes.tsx",
+                    "Histórico de auditoria de pedidos",
+                  ],
+                  [
+                    "/novo-pedido",
+                    "NovoPedido.tsx",
+                    "Criação de pedido manual",
+                  ],
+                  [
+                    "/design",
+                    "Design.tsx",
+                    "Sandbox do KanbanBoard (uso interno)",
+                  ],
+                  [
+                    "/documentacao",
+                    "Documentacao.tsx",
+                    "Esta página de documentação (senha protegida)",
+                  ],
+                ]}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Rotas Públicas (sem login)"
+              defaultOpen={false}
+            >
+              <DocTable
+                headers={["Rota", "Componente / Página", "Descrição"]}
+                rows={[
+                  ["/auth", "Auth.tsx", "Tela de login e cadastro"],
+                  [
+                    "/reset-password",
+                    "ResetPassword.tsx",
+                    "Redefinição de senha via link de e-mail",
+                  ],
+                  [
+                    "/informacoes-entrega/:token",
+                    "InformacoesEntrega.tsx",
+                    "Formulário de dados do cliente (link único sem login)",
+                  ],
+                  ["/termos-servico", "TermosServico.tsx", "Termos de serviço"],
+                  [
+                    "/politica-privacidade",
+                    "TermoPrivacidade.tsx",
+                    "Política de privacidade (LGPD)",
+                  ],
+                  ["*", "NotFound.tsx", "Página 404 para rotas inexistentes"],
+                ]}
+              />
+            </CollapsibleSection>
+          </section>
+
+          {/* ─── Deploy & Configuração ─── */}
+          <section id="deploy" className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <ServerCog className="w-6 h-6 text-gray-500" />
+              Deploy & Configuração
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300">
+              O frontend é hospedado na <strong>Vercel</strong>. O backend é o
+              <strong> Supabase</strong> (banco, auth, storage, edge functions).
+            </p>
+
+            <CollapsibleSection
+              title="vercel.json — Configuração de Roteamento"
+              defaultOpen={true}
+            >
+              <CodeBlock>{`{
+  "rewrites": [
+    // Garante que sw.js é servido diretamente (necessário para PWA)
+    { "source": "/sw.js", "destination": "/sw.js" },
+    // SPA fallback — todas as outras rotas retornam index.html
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}`}</CodeBlock>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Sem esse rewrite, a navegação direta para{" "}
+                <code>/dashboard</code> retornaria 404 na Vercel.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Variáveis de Ambiente"
+              defaultOpen={false}
+            >
+              <DocTable
+                headers={["Variável", "Obrigatória", "Descrição"]}
+                rows={[
+                  [
+                    "VITE_SUPABASE_URL",
+                    "Sim",
+                    "URL do projeto Supabase (ex: https://xxx.supabase.co)",
+                  ],
+                  [
+                    "VITE_SUPABASE_ANON_KEY",
+                    "Sim",
+                    "Chave pública anon do Supabase (JWT)",
+                  ],
+                  [
+                    "VITE_VAPID_PUBLIC_KEY",
+                    "Sim (Push)",
+                    "Chave pública VAPID para Web Push (base64 URL-safe)",
+                  ],
+                ]}
+              />
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+                Em desenvolvimento, criar <code>.env.local</code> na raiz do
+                projeto. Na Vercel, configurar em Settings → Environment
+                Variables.
+              </p>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Comandos de Desenvolvimento"
+              defaultOpen={false}
+            >
+              <CodeBlock>{`# Instalar dependências
+bun install
+
+# Rodar em desenvolvimento (Vite HMR)
+bun run dev
+
+# Build de produção
+bun run build
+
+# Preview do build local
+bun run preview
+
+# Lint
+bun run lint`}</CodeBlock>
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Migrações do Banco (supabase/migrations/)"
+              defaultOpen={false}
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                As migrações são aplicadas via <code>supabase db push</code> ou
+                automaticamente pelo Supabase CI/CD. Principais marcos:
+              </p>
+              <DocTable
+                headers={["Migração", "O que criou/alterou"]}
+                rows={[
+                  [
+                    "20250223000001",
+                    "Tabela historico_movimentacoes (auditoria de pedidos)",
+                  ],
+                  [
+                    "20250928000001",
+                    "Tabelas de envio/shipping (embalagens, remetentes, etiquetas)",
+                  ],
+                  [
+                    "20250930000100/200",
+                    "Colunas embalagem_id e nome_variacao em produtos",
+                  ],
+                  [
+                    "20251211000001/002",
+                    "Tabela status_upsell + coluna em itens_pedido",
+                  ],
+                  ["20251226000001", "Tabela formas_pagamentos"],
+                  [
+                    "20260226000001",
+                    "RPC producao_get_itens (fila de produção)",
+                  ],
+                  [
+                    "20260304000001/002/003",
+                    "Tabela push_subscriptions + trigger de notificação push",
+                  ],
+                  [
+                    "20260305000001-004",
+                    "Updates na RPC de produção (urgentes, Comercial)",
+                  ],
+                  [
+                    "20260307000001-003",
+                    "RPCs de métricas PIX para DashboardComercial",
+                  ],
+                  ["20260307000002", "RPC comercial_yampi_upsell_metrics"],
+                  ["20260310000001-003", "Fixes urgentes + métricas WhatsApp"],
+                  ["20260311000001/002", "Coluna pacote_disponivel em pedidos"],
+                  [
+                    "20260312000001-003",
+                    "RPCs de custo comercial, upsell incremental e status up-sell",
+                  ],
+                  [
+                    "20260313000001-005",
+                    "Valor antigo em entrada_valores + RPCs de upsell + tipos de lead",
+                  ],
+                  [
+                    "20260316000001-004",
+                    "Top produtos upsell + fixes de faturamento",
+                  ],
+                  ["20260317000001", "Tabela pacotes"],
+                  [
+                    "20260323000001-005",
+                    "Seção comparativo leads + fixes de frete/PIX + métricas PIX convertidos",
+                  ],
+                  ["20260324000001", "RPC comercial_get_recuperacao_pix_yampi"],
+                  [
+                    "20260417000001/002",
+                    "Coluna retirada em pedidos + trigger para logística",
+                  ],
+                ]}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Supabase Edge Functions — Deploy"
+              defaultOpen={false}
+            >
+              <CodeBlock>{`# Deploy de uma função
+supabase functions deploy nome-da-funcao
+
+# Deploy de todas as funções
+supabase functions deploy
+
+# Variáveis de ambiente nas Edge Functions (Deno)
+# Configurar em: Supabase Dashboard → Edge Functions → Secrets
+# Ou via CLI:
+supabase secrets set MINHA_VAR=valor`}</CodeBlock>
             </CollapsibleSection>
           </section>
 
