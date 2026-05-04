@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -552,12 +552,48 @@ export default function Documentacao() {
     }
   };
 
+  const isScrollingRef = useRef(false);
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isScrollingRef.current) return;
+        // Pega a seção com maior proporção de visibilidade
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length > 0) {
+          setActiveSection(visible[0].target.id);
+        }
+      },
+      {
+        root: null,
+        rootMargin: "-15% 0px -70% 0px",
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+      },
+    );
+
+    sections.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [autenticado]);
+
   const scrollToSection = (id: string) => {
+    isScrollingRef.current = true;
     setActiveSection(id);
     setSearchQuery("");
     document
       .getElementById(id)
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Reabilita o observer após a animação terminar (~800ms)
+    if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+    scrollTimerRef.current = setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 800);
   };
 
   /* ─── Lógica de Busca ─── */
