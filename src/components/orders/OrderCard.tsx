@@ -26,6 +26,13 @@ const etiquetaLabels = {
 
 export function OrderCard({ pedido, onClick, draggable = false }: OrderCardProps) {
   const { toast } = useToast();
+  
+  const BRINDE_PRODUTO_ID = 'dad0f6d1-ebeb-4c15-a09d-428a0cd7121e';
+
+  const hasAvariaBrinde = (pedido.itens || []).some((it: any) => {
+    const pid = (it.produtoId ?? (it as any).produto_id ?? it.produto?.id ?? it.produtoId) as string | undefined | null;
+    return !!pid && String(pid).toLowerCase() === BRINDE_PRODUTO_ID.toLowerCase();
+  });
 
   const handleCopyId = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -61,6 +68,12 @@ export function OrderCard({ pedido, onClick, draggable = false }: OrderCardProps
                 <Badge variant="destructive" className="text-xs">
                   <AlertTriangle className="h-3 w-3 mr-1" />
                   Urgente
+                </Badge>
+              )}
+              {hasAvariaBrinde && (
+                <Badge variant="destructive" className="text-xs ml-1">
+                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  Avarias - Brinde
                 </Badge>
               )}
             </div>

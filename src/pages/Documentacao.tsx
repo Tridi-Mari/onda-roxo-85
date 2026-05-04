@@ -143,7 +143,7 @@ const sections: SectionItem[] = [
     id: "edge-functions",
     label: "Edge Functions",
     icon: <Zap className="w-4 h-4" />,
-    badge: "4 funções",
+    badge: "7 funções",
   },
   {
     id: "webhooks",
@@ -164,6 +164,165 @@ const sections: SectionItem[] = [
     id: "paginas-publicas",
     label: "Páginas Públicas",
     icon: <Globe className="w-4 h-4" />,
+  },
+];
+
+/* ─── Índice de Busca ────────────────────────────────── */
+interface SearchEntry {
+  id: string;
+  label: string;
+  description: string;
+  keywords: string;
+}
+
+const searchIndex: SearchEntry[] = [
+  {
+    id: "visao-geral",
+    label: "Visão Geral",
+    description: "O que é o ERP Zeelux, seus módulos e como funciona",
+    keywords:
+      "erp zeelux sistema digital completo ciclo vida pedidos empresa compra envio produto centraliza gestão produção logística estoque financeiro contabilidade react typescript supabase nuvem módulos dashboard comercial leads configurações 25 páginas componentes edge functions webhooks overview introdução o que é resumo geral",
+  },
+  {
+    id: "arquitetura",
+    label: "Arquitetura & Stack",
+    description: "Tecnologias usadas, estrutura de pastas e camadas do sistema",
+    keywords:
+      "arquitetura stack tecnologia react 18 typescript vite tailwind css shadcn ui react router react query tanstack recharts date-fns zod react-hook-form lucide lottie postgresql supabase auth storage realtime edge functions deno views rpcs triggers estrutura pastas componentes hooks contexts integrations types lib data assets frontend backend camadas app",
+  },
+  {
+    id: "autenticacao",
+    label: "Autenticação & Permissões",
+    description: "Login, logout, permissões de acesso e proteção de rotas",
+    keywords:
+      "autenticacao autenticação permissões login logout usuario useAuth hook signup signin signout protected route proteção rotas acesso controle sessão jwt token perfil empresa id empresa permissao hasPermission deleteUser credenciais senha email isAuthenticated isActive loading permissoes predefinicoes set_usuario_permissao group_usuarios_permissoes",
+  },
+  {
+    id: "layout",
+    label: "Layout & Navegação",
+    description: "Cabeçalho, menus laterais, busca global e estrutura visual",
+    keywords:
+      "layout navegação cabeçalho header AppHeader AppLayout sidebar menu lateral ComercialSidebar LogisticaSidebar EstoqueSidebar busca global SearchPanel lupa notificações sino perfil logo empresa gradiente módulos responsivo recolher expandir getModuleFromPath debounce 300ms vw_clientes_pedidos leads barra pesquisa",
+  },
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    description: "Resumo de vendas, métricas, gráficos e top produtos",
+    keywords:
+      "dashboard resumo vendas métricas gráficos top produtos faturamento ticket médio pedidos enviados período seletor data atalhos hoje últimos 7 dias 30 dias 90 dias este mês mês passado este ano abortcontroller vendas plataforma envios pizza barras status taxa envio MetricCard cartão tendência recharts permissão 50",
+  },
+  {
+    id: "comercial",
+    label: "Comercial",
+    description: "Gestão de pedidos, filtros avançados e operações em lote",
+    keywords:
+      "comercial pedidos gestão filtros avançados operações lote alterar status responsável etiqueta envio rápido melhor envio saldo badges alerta etiqueta pendente envio adiado duplicação pedido novo pedido cancelados enviados retornados plataforma urgente data url compartilhar busca cpf cnpj telefone NovoPedido PedidosCancelados PedidosEnviados PedidosRetornados",
+  },
+  {
+    id: "pedido",
+    label: "Pedido (Detalhe)",
+    description: "Tela de detalhe do pedido com abas, up-sell e etiquetas",
+    keywords:
+      "pedido detalhe aba resumo status entrega tempo ganho subir etiqueta itens tabela botões upsell up-sell manter remover rodapé financeiro formas pagamento adicionar produto fluxo guiado etapas dados pagamento valor status plataforma etiqueta responsável urgente observações dados cliente endereço remetente embalagem cálculo frete enviar mais barato imprimir etiqueta mercado livre upload pdf subir etiqueta armazenamento jsonb etiquetas_uploads aumentado não aumentado aguardando aumento grátis liberação automática trigger pedido_liberado",
+  },
+  {
+    id: "contabilidade",
+    label: "Contabilidade",
+    description: "Visualização contábil e integração completa com o Bling ERP",
+    keywords:
+      "contabilidade bling erp pedido contabil nota fiscal nfe nf-e emissão cliente consultar criar editar atualizar pedido bling consultar criar editar gerar nfe permissão 22 visualização contábil fiscal integração api edge functions pré-visualização produtos valor total data plataforma responsável PedidoContabilidade consultar_cliente criar_cliente editar_cliente consultar_pedido criar_pedido editar_pedido gerar_nfe",
+  },
+  {
+    id: "producao",
+    label: "Produção",
+    description: "Quadro Kanban de produção com atualização em tempo real",
+    keywords:
+      "produção kanban quadro tempo real realtime arrastar soltar drag drop status etapas produção entrada logística logistica cartões pedidos urgente código externo colunas busca interna atualização automática websocket enviado data envio itens produzir variações quantidades agregadas Producao",
+  },
+  {
+    id: "logistica",
+    label: "Logística",
+    description: "Bipação de produtos, geração de etiquetas e envio de pedidos",
+    keywords:
+      "logística logistica envio bipação bipe código barras leitor scanner priorização urgente antigo etiqueta melhor envio saldo remetente plataforma mercado livre pdf imprimir painel itens enviar vw_itens_logistica envio etiqueta manual EnvioPorEtiqueta etapas bipação visualização marcar enviado responsável atribuição automática remetente achar_item_por_codigo_bipado",
+  },
+  {
+    id: "estoque",
+    label: "Estoque",
+    description: "Cadastro de produtos, variações, embalagens e SKUs",
+    keywords:
+      "estoque produtos variações embalagens sku plataformas catálogo criação edição exclusão permissão 17 18 19 20 21 ProductForm formulário dados básicos dimensões peso altura largura comprimento variações checkbox upsell embalagem mercado livre bling_id código barras paginação server-side categorias sem estoque ListaEmbalagens SkuPlataformas",
+  },
+  {
+    id: "leads",
+    label: "Leads",
+    description: "Gestão de clientes potenciais e conversão em pedidos",
+    keywords:
+      "leads clientes potenciais pix pendente carrinho abandonado converter pedido permissão 23 abas filtro todos pix carrinho abandono yampi fluxo automático inserir cliente itens excluir lead plataforma forma pagamento ações copiar editar criar pedido check aprovado rejeitado",
+  },
+  {
+    id: "configuracoes",
+    label: "Configurações",
+    description: "Usuários, status, setores, pagamentos e preferências visuais",
+    keywords:
+      "configurações usuários status setores formas pagamento preferências permissão 7 criar usuário editar permissões individuais excluir foto arrastar soltar checkboxes predefinicoes status nome cor ordem drag drop reordenar setores módulos menu cabeçalho formas pagamento logo ícone modo escuro dark mode minha empresa cnpj cor principal paleta hsl tonalidades variáveis css",
+  },
+  {
+    id: "notificacoes",
+    label: "Notificações",
+    description: "Notificações em tempo real com sino e painel de leitura",
+    keywords:
+      "notificações tempo real realtime sininho bell sino dropdown painel não lidas lidas concluídas filtros fetch marcar lida concluída todas websocket conexão ativa som notificação toast amarelo empresa usuário histórico 50 notificações tempo atrás navegar pedido automático NotificacoesContext NotificacoesDropdown",
+  },
+  {
+    id: "hooks",
+    label: "Hooks Customizados",
+    description: "useAuth, useEmpresaColors, useIsMobile e useToast",
+    keywords:
+      "hooks customizados useAuth useEmpresaColors useIsMobile use-mobile useToast toast messages avisos visuais autenticação cores empresa celular mobile 768px layout adaptativo gerenciar reutilizáveis funções",
+  },
+  {
+    id: "supabase",
+    label: "Supabase & Banco de Dados",
+    description: "Tabelas, views, RPCs, triggers e storage do banco de dados",
+    keywords:
+      "supabase banco dados postgresql tabelas views rpcs triggers storage pedidos clientes itens_pedido produtos variacoes_produto usuarios plataformas status_pedido tipos_etiqueta embalagens remetentes leads status_upsell formas_pagamentos empresas notificacoes historico_notificacoes usuarios_permissoes lista_espera_pix fretes_nao_disponiveis pedidos_retornados produtos_sku_plataformas vw_clientes_pedidos itens_pedido_agrupados vw_itens_logistica usuarios_completos group_usuarios_permissoes view_notificacoes pedidos_retornados_completos vw_ass_predefinicao_perm_completo achar_item_por_codigo_bipado trazer_cliente_info enviar_informacoes_cliente set_usuario_permissao increment handle_updated_at atualizar_pedidos_para_logistica enviar_direto_logistica rls controle acesso urls públicas",
+  },
+  {
+    id: "edge-functions",
+    label: "Edge Functions",
+    description: "Webhooks Yampi, PIX, carrinho abandonado e cálculo de frete",
+    keywords:
+      "edge functions deno webhooks yampi pedido pago pix aprovado carrinho abandonado calculo frete melhor envio limpeza pix verificação upsell forma pagamento embalagem remetente cotação registro pedido cliente itens empresa_id 1 cart reminder lead duplicado sku remetente api calculo-frete-melhorenvio request response post pedido-pago-yampi yampi-pix-aprovado yampi-carrinho-ab",
+  },
+  {
+    id: "webhooks",
+    label: "Webhooks & Integrações",
+    description: "Integrações com Yampi, Melhor Envio, ML, Bling e ViaCEP",
+    keywords:
+      "webhooks integrações yampi melhor envio mercado livre bling viacep api rest cotação frete carrinho etiqueta saldo buscar_saldo_melhor_envio calculo-frete adic-carrinho processar_etiqueta processar-etiqueta-melhorenvio gerar-etiqueta-ml nota fiscal nfe base64 pdf binário",
+  },
+  {
+    id: "temas",
+    label: "Tema & Cores Dinâmicas",
+    description: "Paleta personalizada da empresa com suporte a modo escuro",
+    keywords:
+      "tema cores dinâmicas useEmpresaColors hsl hex tonalidades custom-50 custom-100 custom-200 custom-950 variáveis css document.documentElement modo escuro dark light claro empresa gradiente header botões bordas configurações personalizar identidade visual",
+  },
+  {
+    id: "tipos",
+    label: "Tipos & Interfaces",
+    description: "Interfaces TypeScript dos objetos principais do sistema",
+    keywords:
+      "tipos interfaces typescript types Usuario Plataforma StatusPedido Produto VariacaoProduto ItemPedido EtiquetaEnvio Pedido DashboardData Row Insert Update schema banco gerado automático integrations supabase types.ts estrutura objetos campos",
+  },
+  {
+    id: "paginas-publicas",
+    label: "Páginas Públicas",
+    description:
+      "Login, formulário do cliente, termos e política de privacidade",
+    keywords:
+      "páginas públicas auth login senha redefinir informacoes entrega formulário cliente link único sem login cpf cnpj validação dígitos verificadores viacep cep endereço complemento observação formulario_enviado documentacao termos serviço política privacidade lgpd dpo not found 404 erros InformacoesEntrega",
   },
 ];
 
@@ -272,17 +431,14 @@ function InfoCard({
   );
 }
 
-/* ─── Senha de acesso ────────────────────────────────── */
 const SENHA_DOCUMENTACAO = "zeelux2026";
 
-/* ═════════════════════════════════════════════════════════
-   ═══ COMPONENTE PRINCIPAL ══════════════════════════════
-   ═════════════════════════════════════════════════════════ */
 export default function Documentacao() {
   const [activeSection, setActiveSection] = useState("visao-geral");
   const [autenticado, setAutenticado] = useState(false);
   const [senha, setSenha] = useState("");
   const [erroSenha, setErroSenha] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -296,10 +452,27 @@ export default function Documentacao() {
 
   const scrollToSection = (id: string) => {
     setActiveSection(id);
+    setSearchQuery("");
     document
       .getElementById(id)
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
+  /* ─── Lógica de Busca ─── */
+  const normalizeText = (text: string) =>
+    text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  const searchResults = searchIndex.filter((entry) => {
+    if (!searchQuery.trim()) return false;
+    const q = normalizeText(searchQuery.trim());
+    const text = normalizeText(
+      `${entry.label} ${entry.description} ${entry.keywords}`,
+    );
+    return text.includes(q);
+  });
 
   if (!autenticado) {
     return (
@@ -372,10 +545,10 @@ export default function Documentacao() {
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <BookOpen className="w-7 h-7 text-blue-600" />
+                <BookOpen className="w-7 h-7 text-blue-600 shrink-0" />
                 Documentação Técnica — ERP Zeelux
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -383,45 +556,152 @@ export default function Documentacao() {
                 banco de dados e integrações
               </p>
             </div>
-            <Link
-              to="/"
-              className="text-sm text-blue-600 hover:underline flex items-center gap-1"
-            >
-              <Home className="w-4 h-4" /> Voltar ao sistema
-            </Link>
+            <div className="flex items-center gap-3 shrink-0">
+              {/* Busca rápida mobile (visível apenas em telas menores que lg) */}
+              <div className="relative lg:hidden">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar..."
+                  className="pl-9 pr-4 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700 w-44"
+                />
+              </div>
+              <Link
+                to="/"
+                className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+              >
+                <Home className="w-4 h-4" /> Voltar ao sistema
+              </Link>
+            </div>
           </div>
+          {/* Resultados de busca mobile */}
+          {searchQuery.trim() && (
+            <div className="mt-3 lg:hidden border-t border-gray-100 dark:border-gray-700 pt-3">
+              {searchResults.length === 0 ? (
+                <p className="text-sm text-gray-500">
+                  Nenhum resultado para "{searchQuery}"
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {searchResults.map((result) => (
+                    <button
+                      key={result.id}
+                      onClick={() => scrollToSection(result.id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/60 transition-colors"
+                    >
+                      {sections.find((s) => s.id === result.id)?.icon}
+                      {result.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex gap-8">
         {/* ─── Sidebar de navegação ─── */}
         <nav className="hidden lg:block w-72 shrink-0">
-          <div className="sticky top-24 space-y-1 max-h-[calc(100vh-120px)] overflow-y-auto pr-2">
-            <p className="text-xs font-bold uppercase text-gray-400 mb-3 tracking-wider">
-              Seções
-            </p>
-            {sections.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => scrollToSection(s.id)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  activeSection === s.id
-                    ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                }`}
-              >
-                {s.icon}
-                <span className="flex-1 text-left">{s.label}</span>
-                {s.badge && (
-                  <Badge
-                    variant="secondary"
-                    className="text-[10px] px-1.5 py-0"
-                  >
-                    {s.badge}
-                  </Badge>
+          <div className="sticky top-24 space-y-1 max-h-[calc(100vh-120px)] overflow-y-auto overflow-x-visible pr-2 pl-0.5">
+            {/* ── Barra de Busca ── */}
+            <div className="relative mb-4 -ml-0.5">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar na documentação..."
+                className="w-full pl-9 pr-8 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-base leading-none"
+                  aria-label="Limpar busca"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+
+            {/* ── Resultados de Busca ── */}
+            {searchQuery.trim() ? (
+              <div className="space-y-1">
+                {searchResults.length === 0 ? (
+                  <div className="px-3 py-6 text-center space-y-2">
+                    <Search className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Nenhum resultado para
+                    </p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      "{searchQuery}"
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Tente palavras como: pedido, estoque, frete, permissão…
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-xs font-bold uppercase text-gray-400 mb-2 px-1 tracking-wider">
+                      {searchResults.length} resultado
+                      {searchResults.length !== 1 ? "s" : ""} encontrado
+                      {searchResults.length !== 1 ? "s" : ""}
+                    </p>
+                    {searchResults.map((result) => (
+                      <button
+                        key={result.id}
+                        onClick={() => scrollToSection(result.id)}
+                        className="w-full flex items-start gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 text-left group"
+                      >
+                        <div className="mt-0.5 text-blue-500 dark:text-blue-400 shrink-0 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors">
+                          {sections.find((s) => s.id === result.id)?.icon}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-gray-800 dark:text-gray-200 truncate">
+                            {result.label}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
+                            {result.description}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </>
                 )}
-              </button>
-            ))}
+              </div>
+            ) : (
+              /* ── Navegação Normal ── */
+              <>
+                <p className="text-xs font-bold uppercase text-gray-400 mb-3 tracking-wider">
+                  Seções
+                </p>
+                {sections.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => scrollToSection(s.id)}
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      activeSection === s.id
+                        ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    {s.icon}
+                    <span className="flex-1 text-left">{s.label}</span>
+                    {s.badge && (
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] px-1.5 py-0"
+                      >
+                        {s.badge}
+                      </Badge>
+                    )}
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         </nav>
 
@@ -489,7 +769,34 @@ export default function Documentacao() {
             </div>
 
             <h3 className="text-lg font-semibold mt-6">
-              Módulos do Sistema \u2014 O que cada parte faz
+              Como os dados fluem no sistema
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              O fluxo típico de um pedido no ERP Zeelux passa pelas seguintes
+              etapas em ordem:
+            </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 text-sm flex-wrap">
+              {[
+                { emoji: "🛒", label: "Cliente compra" },
+                { emoji: "📥", label: "Webhook Yampi" },
+                { emoji: "🏗️", label: "Produção" },
+                { emoji: "📦", label: "Logística" },
+                { emoji: "🚚", label: "Enviado" },
+                { emoji: "💰", label: "Contabilidade / NF-e" },
+              ].map((step, i, arr) => (
+                <div key={i} className="flex items-center gap-1">
+                  <span className="flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 font-medium text-gray-700 dark:text-gray-300">
+                    {step.emoji} {step.label}
+                  </span>
+                  {i < arr.length - 1 && (
+                    <span className="text-gray-400 text-base">→</span>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <h3 className="text-lg font-semibold mt-4">
+              Módulos do Sistema — O que cada parte faz
             </h3>
             <DocTable
               headers={["Módulo", "Arquivo(s)", "Para que serve"]}
@@ -2203,6 +2510,11 @@ supabase/
             <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
               🪝 Hooks Customizados
             </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Hooks são funções reutilizáveis do React que encapsulam lógica
+              complexa e a disponibilizam para qualquer componente ou página com
+              uma única linha de código. No ERP Zeelux existem 4 hooks próprios:
+            </p>
 
             <DocTable
               headers={["Hook", "Arquivo", "Para que serve"]}
@@ -2500,6 +2812,17 @@ supabase/
             <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
               ⚡ Edge Functions (Deno)
             </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Edge Functions são pequenos programas que rodam na nuvem (no
+              servidor do Supabase) em resposta a eventos externos ou chamadas
+              do sistema. São escritas em Deno (runtime moderno de
+              TypeScript/JavaScript) e executadas automaticamente sem
+              necessidade de servidor próprio. O ERP Zeelux possui 7 Edge
+              Functions divididas em dois grupos:
+              <strong> 3 que recebem eventos da Yampi</strong> (webhooks) e{" "}
+              <strong>4 chamadas pelo próprio frontend</strong> (integrações com
+              Melhor Envio e Mercado Livre).
+            </p>
 
             <CollapsibleSection
               title="pedido-pago-yampi — Pedido pago na loja"
