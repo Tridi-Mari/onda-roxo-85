@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -440,22 +440,47 @@ function CollapsibleSection({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+    <div
+      className={`rounded-xl overflow-hidden transition-all duration-200 ${
+        open
+          ? "border-2 border-[hsl(var(--custom-300))] dark:border-[hsl(var(--custom-700))] shadow-md"
+          : "border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-800))] shadow-sm"
+      }`}
+    >
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+        className={`w-full flex items-center justify-between px-5 py-4 text-left transition-colors ${
+          open
+            ? "bg-gradient-to-r from-[hsl(var(--custom-100))] to-[hsl(var(--custom-50))] dark:from-[hsl(var(--custom-800))]/50 dark:to-[hsl(var(--custom-900))]/60"
+            : "bg-[hsl(var(--custom-50))] dark:bg-[hsl(var(--custom-900))]/40 hover:bg-[hsl(var(--custom-100))] dark:hover:bg-[hsl(var(--custom-800))]/40"
+        }`}
       >
-        <span className="font-semibold text-gray-800 dark:text-gray-200">
-          {title}
-        </span>
-        {open ? (
-          <ChevronDown className="w-5 h-5 text-gray-500" />
-        ) : (
-          <ChevronRight className="w-5 h-5 text-gray-500" />
-        )}
+        <div className="flex items-center gap-3">
+          <div
+            className={`w-1 h-5 rounded-full transition-colors ${
+              open
+                ? "bg-[hsl(var(--custom-500))]"
+                : "bg-[hsl(var(--custom-300))] dark:bg-[hsl(var(--custom-600))]"
+            }`}
+          />
+          <span
+            className={`font-semibold text-sm ${
+              open
+                ? "text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))]"
+                : "text-gray-700 dark:text-gray-300"
+            }`}
+          >
+            {title}
+          </span>
+        </div>
+        <ChevronDown
+          className={`w-4 h-4 transition-transform duration-200 text-[hsl(var(--custom-500))] dark:text-[hsl(var(--custom-400))] ${
+            open ? "rotate-0" : "-rotate-90"
+          }`}
+        />
       </button>
       {open && (
-        <div className="p-4 bg-white dark:bg-gray-900 space-y-3">
+        <div className="px-5 py-4 bg-white dark:bg-gray-900/80 space-y-3 border-t border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/50">
           {children}
         </div>
       )}
@@ -466,14 +491,14 @@ function CollapsibleSection({
 /* ─── Componente de Tabela ───────────────────────────── */
 function DocTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-xl border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/60 shadow-sm">
       <table className="w-full text-sm border-collapse">
         <thead>
-          <tr className="bg-gray-100 dark:bg-gray-800">
+          <tr className="bg-gradient-to-r from-[hsl(var(--custom-100))] to-[hsl(var(--custom-50))] dark:from-[hsl(var(--custom-800))]/60 dark:to-[hsl(var(--custom-900))]/50">
             {headers.map((h, i) => (
               <th
                 key={i}
-                className="text-left p-2 border border-gray-200 dark:border-gray-700 font-semibold"
+                className="text-left px-4 py-3 font-semibold text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-200))] border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/60 text-xs uppercase tracking-wide"
               >
                 {h}
               </th>
@@ -482,11 +507,22 @@ function DocTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+            <tr
+              key={i}
+              className={`transition-colors hover:bg-[hsl(var(--custom-50))] dark:hover:bg-[hsl(var(--custom-900))]/40 ${
+                i % 2 === 1
+                  ? "bg-[hsl(var(--custom-50))]/60 dark:bg-white/[0.02]"
+                  : "bg-white dark:bg-transparent"
+              }`}
+            >
               {row.map((cell, j) => (
                 <td
                   key={j}
-                  className="p-2 border border-gray-200 dark:border-gray-700"
+                  className={`px-4 py-3 border-b border-[hsl(var(--custom-100))] dark:border-[hsl(var(--custom-800))]/40 ${
+                    j === 0
+                      ? "font-medium text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))]"
+                      : "text-gray-600 dark:text-gray-400"
+                  } ${i === rows.length - 1 ? "border-b-0" : ""}`}
                 >
                   {cell}
                 </td>
@@ -501,9 +537,17 @@ function DocTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
 
 function CodeBlock({ children }: { children: string }) {
   return (
-    <pre className="bg-gray-900 text-green-400 text-xs p-3 rounded-lg overflow-x-auto whitespace-pre-wrap">
-      <code>{children}</code>
-    </pre>
+    <div className="rounded-xl overflow-hidden shadow-md border border-gray-700/50">
+      <div className="flex items-center gap-1.5 px-4 py-2.5 bg-[#1a1a2e] border-b border-gray-700/50">
+        <div className="w-3 h-3 rounded-full bg-red-500/70" />
+        <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+        <div className="w-3 h-3 rounded-full bg-green-500/70" />
+        <span className="ml-2 text-xs text-gray-500 font-mono">code</span>
+      </div>
+      <pre className="bg-[#0d1117] text-green-400 text-xs px-5 py-4 overflow-x-auto whitespace-pre-wrap leading-relaxed">
+        <code>{children}</code>
+      </pre>
+    </div>
   );
 }
 
@@ -517,19 +561,23 @@ function InfoCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="p-4 space-y-2">
-      <div className="flex items-center gap-2">
-        <div className="p-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-md text-blue-700 dark:text-blue-300">
-          {icon}
+    <div className="relative rounded-xl border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/60 bg-white dark:bg-gray-900/60 overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+      {/* Top accent gradient strip */}
+      <div className="h-0.5 bg-gradient-to-r from-[hsl(var(--custom-400))] via-[hsl(var(--custom-500))] to-[hsl(var(--custom-600))]" />
+      <div className="p-4 space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-[hsl(var(--custom-100))] to-[hsl(var(--custom-200))] dark:from-[hsl(var(--custom-800))]/60 dark:to-[hsl(var(--custom-900))]/60 rounded-lg text-[hsl(var(--custom-600))] dark:text-[hsl(var(--custom-300))] shadow-sm group-hover:scale-110 transition-transform">
+            {icon}
+          </div>
+          <h4 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
+            {title}
+          </h4>
         </div>
-        <h4 className="font-semibold text-gray-800 dark:text-gray-200">
-          {title}
-        </h4>
+        <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed space-y-2">
+          {children}
+        </div>
       </div>
-      <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
-        {children}
-      </div>
-    </Card>
+    </div>
   );
 }
 
@@ -614,109 +662,145 @@ export default function Documentacao() {
 
   if (!autenticado) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <div className="mx-auto w-14 h-14 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center">
-              <Lock className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+      <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--custom-100))] via-[hsl(var(--custom-50))] to-white dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" />
+        {/* Decorative orbs */}
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-[hsl(var(--custom-200))]/40 dark:bg-[hsl(var(--custom-800))]/20 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-[hsl(var(--custom-300))]/30 dark:bg-[hsl(var(--custom-700))]/10 blur-3xl pointer-events-none" />
+
+        <div className="relative w-full max-w-md">
+          {/* Card */}
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-[hsl(var(--custom-200))]/60 dark:border-white/10 overflow-hidden">
+            {/* Top gradient strip */}
+            <div className="h-1 bg-gradient-to-r from-[hsl(var(--custom-400))] via-[hsl(var(--custom-500))] to-[hsl(var(--custom-700))]" />
+
+            <div className="p-8 space-y-7">
+              {/* Header */}
+              <div className="text-center space-y-3">
+                <div className="mx-auto w-16 h-16 bg-gradient-to-br from-[hsl(var(--custom-100))] to-[hsl(var(--custom-200))] dark:from-[hsl(var(--custom-800))]/60 dark:to-[hsl(var(--custom-900))]/60 rounded-2xl flex items-center justify-center shadow-md border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40">
+                  <Lock className="w-7 h-7 text-[hsl(var(--custom-600))] dark:text-[hsl(var(--custom-400))]" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                    Documentação Técnica
+                  </h1>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">
+                    Acesso restrito — ERP Zeelux
+                  </p>
+                </div>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="senha"
+                    className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                  >
+                    Senha de acesso
+                  </label>
+                  <input
+                    id="senha"
+                    type="password"
+                    value={senha}
+                    onChange={(e) => {
+                      setSenha(e.target.value);
+                      setErroSenha(false);
+                    }}
+                    placeholder="••••••••"
+                    autoFocus
+                    className={`w-full px-4 py-3 rounded-xl border-2 text-sm outline-none transition-all ${
+                      erroSenha
+                        ? "border-red-400 focus:border-red-500 bg-red-50/50 dark:bg-red-950/20"
+                        : "border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/60 focus:border-[hsl(var(--custom-500))] dark:focus:border-[hsl(var(--custom-400))] bg-white dark:bg-gray-800/60"
+                    } text-gray-900 dark:text-white placeholder-gray-400`}
+                  />
+                  {erroSenha && (
+                    <p className="text-xs text-red-500 flex items-center gap-1.5 mt-1">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                      Senha incorreta. Tente novamente.
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[hsl(var(--custom-600))] to-[hsl(var(--custom-700))] hover:from-[hsl(var(--custom-700))] hover:to-[hsl(var(--custom-800))] text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
+                >
+                  Acessar Documentação
+                </button>
+              </form>
+
+              {/* Footer */}
+              <div className="text-center border-t border-[hsl(var(--custom-100))] dark:border-white/10 pt-4">
+                <Link
+                  to="/"
+                  className="inline-flex items-center gap-1.5 text-sm text-[hsl(var(--custom-600))] dark:text-[hsl(var(--custom-400))] hover:text-[hsl(var(--custom-700))] dark:hover:text-[hsl(var(--custom-300))] transition-colors"
+                >
+                  <Home className="w-3.5 h-3.5" />
+                  Voltar ao sistema
+                </Link>
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Documentação Técnica
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Digite a senha para acessar a documentação do sistema.
-            </p>
           </div>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="senha"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Senha
-              </label>
-              <input
-                id="senha"
-                type="password"
-                value={senha}
-                onChange={(e) => {
-                  setSenha(e.target.value);
-                  setErroSenha(false);
-                }}
-                placeholder="••••••••"
-                autoFocus
-                className={`w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors ${
-                  erroSenha
-                    ? "border-red-500 focus:ring-2 focus:ring-red-200 dark:focus:ring-red-800"
-                    : "border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 focus:border-blue-500"
-                } bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
-              />
-              {erroSenha && (
-                <p className="text-sm text-red-500 flex items-center gap-1">
-                  <AlertTriangle className="w-3.5 h-3.5" /> Senha incorreta.
-                  Tente novamente.
-                </p>
-              )}
-            </div>
-            <button
-              type="submit"
-              className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition-colors"
-            >
-              Acessar Documentação
-            </button>
-          </form>
-          <div className="text-center">
-            <Link
-              to="/"
-              className="text-sm text-blue-600 hover:underline flex items-center justify-center gap-1"
-            >
-              <Home className="w-3.5 h-3.5" /> Voltar ao sistema
-            </Link>
-          </div>
-        </Card>
+
+          {/* Subtle watermark */}
+          <p className="text-center text-xs text-gray-400 dark:text-gray-600 mt-5">
+            ERP Zeelux · Documentação Interna
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-[hsl(var(--custom-50))] dark:bg-gray-950">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <header className="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-[hsl(var(--custom-200))] dark:border-white/[0.07] shadow-sm">
+        {/* Top color accent */}
+        <div className="h-0.5 bg-gradient-to-r from-[hsl(var(--custom-400))] via-[hsl(var(--custom-500))] to-[hsl(var(--custom-700))]" />
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
           <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <BookOpen className="w-7 h-7 text-blue-600 shrink-0" />
-                Documentação Técnica — ERP Zeelux
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Referência completa de arquitetura, páginas, componentes, hooks,
-                banco de dados e integrações
-              </p>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2 bg-gradient-to-br from-[hsl(var(--custom-100))] to-[hsl(var(--custom-200))] dark:from-[hsl(var(--custom-800))]/60 dark:to-[hsl(var(--custom-900))]/60 rounded-xl border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 shrink-0">
+                <BookOpen className="w-5 h-5 text-[hsl(var(--custom-600))] dark:text-[hsl(var(--custom-400))]" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                  Documentação Técnica
+                  <span className="ml-2 text-xs font-medium px-2 py-0.5 rounded-full bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/60 text-[hsl(var(--custom-600))] dark:text-[hsl(var(--custom-300))] border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40">
+                    ERP Zeelux
+                  </span>
+                </h1>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 hidden sm:block">
+                  Arquitetura · Páginas · Componentes · Integrações · Deploy
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-3 shrink-0">
-              {/* Busca rápida mobile (visível apenas em telas menores que lg) */}
+              {/* Busca rápida mobile */}
               <div className="relative lg:hidden">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar..."
-                  className="pl-9 pr-4 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700 w-44"
+                  className="pl-8 pr-4 py-2 text-sm rounded-lg border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/60 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[hsl(var(--custom-500))] w-40"
                 />
               </div>
               <Link
                 to="/"
-                className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                className="flex items-center gap-1.5 text-sm text-[hsl(var(--custom-600))] dark:text-[hsl(var(--custom-400))] hover:text-[hsl(var(--custom-700))] dark:hover:text-[hsl(var(--custom-300))] transition-colors font-medium"
               >
-                <Home className="w-4 h-4" /> Voltar ao sistema
+                <Home className="w-4 h-4" />
+                <span className="hidden sm:inline">Voltar ao sistema</span>
               </Link>
             </div>
           </div>
           {/* Resultados de busca mobile */}
           {searchQuery.trim() && (
-            <div className="mt-3 lg:hidden border-t border-gray-100 dark:border-gray-700 pt-3">
+            <div className="mt-3 lg:hidden border-t border-[hsl(var(--custom-100))] dark:border-white/10 pt-3">
               {searchResults.length === 0 ? (
                 <p className="text-sm text-gray-500">
                   Nenhum resultado para "{searchQuery}"
@@ -727,7 +811,7 @@ export default function Documentacao() {
                     <button
                       key={result.id}
                       onClick={() => scrollToSection(result.id)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/60 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-900))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] hover:bg-[hsl(var(--custom-200))] dark:hover:bg-[hsl(var(--custom-900))]/60 transition-colors border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40"
                     >
                       {sections.find((s) => s.id === result.id)?.icon}
                       {result.label}
@@ -740,116 +824,150 @@ export default function Documentacao() {
         </div>
       </header>
 
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex gap-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 flex gap-6">
         {/* ─── Sidebar de navegação ─── */}
-        <nav className="hidden lg:block w-72 shrink-0">
-          <div className="sticky top-24 space-y-1 max-h-[calc(100vh-120px)] overflow-y-auto overflow-x-visible pr-2 pl-0.5">
-            {/* ── Barra de Busca ── */}
-            <div className="relative mb-4 -ml-0.5">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar na documentação..."
-                className="w-full pl-9 pr-8 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-700 transition-all"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-base leading-none"
-                  aria-label="Limpar busca"
-                >
-                  ×
-                </button>
-              )}
-            </div>
+        <nav className="hidden lg:block w-64 shrink-0">
+          <div className="sticky top-[4.5rem] space-y-1 max-h-[calc(100vh-5.5rem)] overflow-y-auto overflow-x-visible pr-1 pl-0.5 pb-6">
+            {/* Card container */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-[hsl(var(--custom-200))]/70 dark:border-white/[0.06] shadow-sm overflow-hidden">
+              {/* Search area */}
+              <div className="p-3 border-b border-[hsl(var(--custom-100))] dark:border-white/[0.06]">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Buscar na documentação..."
+                    className="w-full pl-8 pr-7 py-2 text-xs rounded-lg border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/60 bg-[hsl(var(--custom-50))] dark:bg-gray-800/60 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[hsl(var(--custom-400))] dark:focus:border-[hsl(var(--custom-500))] transition-colors"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-[hsl(var(--custom-100))] dark:hover:bg-[hsl(var(--custom-800))]/60 transition-colors text-sm leading-none"
+                      aria-label="Limpar busca"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              </div>
 
-            {/* ── Resultados de Busca ── */}
-            {searchQuery.trim() ? (
-              <div className="space-y-1">
-                {searchResults.length === 0 ? (
-                  <div className="px-3 py-6 text-center space-y-2">
-                    <Search className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto" />
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Nenhum resultado para
-                    </p>
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      "{searchQuery}"
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Tente palavras como: pedido, estoque, frete, permissão…
-                    </p>
+              {/* Nav content */}
+              <div className="p-2">
+                {searchQuery.trim() ? (
+                  <div className="space-y-0.5">
+                    {searchResults.length === 0 ? (
+                      <div className="px-3 py-6 text-center space-y-2">
+                        <Search className="w-7 h-7 text-gray-300 dark:text-gray-600 mx-auto" />
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Nenhum resultado para
+                        </p>
+                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                          "{searchQuery}"
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-[10px] font-bold uppercase text-gray-400 mb-2 px-2 tracking-wider">
+                          {searchResults.length} resultado
+                          {searchResults.length !== 1 ? "s" : ""}
+                        </p>
+                        {searchResults.map((result) => (
+                          <button
+                            key={result.id}
+                            onClick={() => scrollToSection(result.id)}
+                            className="w-full flex items-start gap-2 px-3 py-2.5 rounded-lg text-xs transition-colors hover:bg-[hsl(var(--custom-50))] dark:hover:bg-[hsl(var(--custom-900))]/30 text-left group"
+                          >
+                            <div className="mt-0.5 text-[hsl(var(--custom-500))] dark:text-[hsl(var(--custom-400))] shrink-0">
+                              {sections.find((s) => s.id === result.id)?.icon}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-gray-800 dark:text-gray-200 truncate">
+                                {result.label}
+                              </p>
+                              <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
+                                {result.description}
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                      </>
+                    )}
                   </div>
                 ) : (
                   <>
-                    <p className="text-xs font-bold uppercase text-gray-400 mb-2 px-1 tracking-wider">
-                      {searchResults.length} resultado
-                      {searchResults.length !== 1 ? "s" : ""} encontrado
-                      {searchResults.length !== 1 ? "s" : ""}
+                    <p className="text-[10px] font-bold uppercase text-gray-400 mb-2 px-2 tracking-wider">
+                      {sections.length} seções
                     </p>
-                    {searchResults.map((result) => (
+                    {sections.map((s) => (
                       <button
-                        key={result.id}
-                        onClick={() => scrollToSection(result.id)}
-                        className="w-full flex items-start gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 text-left group"
+                        key={s.id}
+                        onClick={() => scrollToSection(s.id)}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs transition-all group relative ${
+                          activeSection === s.id
+                            ? "bg-gradient-to-r from-[hsl(var(--custom-100))] to-[hsl(var(--custom-50))] dark:from-[hsl(var(--custom-800))]/50 dark:to-transparent text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] font-semibold shadow-sm border border-[hsl(var(--custom-200))]/70 dark:border-[hsl(var(--custom-700))]/30"
+                            : "text-gray-500 dark:text-gray-400 hover:bg-[hsl(var(--custom-50))] dark:hover:bg-white/[0.04] hover:text-gray-700 dark:hover:text-gray-300"
+                        }`}
                       >
-                        <div className="mt-0.5 text-blue-500 dark:text-blue-400 shrink-0 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors">
-                          {sections.find((s) => s.id === result.id)?.icon}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-gray-800 dark:text-gray-200 truncate">
-                            {result.label}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
-                            {result.description}
-                          </p>
-                        </div>
+                        {/* Active indicator */}
+                        {activeSection === s.id && (
+                          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[hsl(var(--custom-500))] rounded-r-full" />
+                        )}
+                        <span
+                          className={`shrink-0 transition-colors ${activeSection === s.id ? "text-[hsl(var(--custom-600))] dark:text-[hsl(var(--custom-400))]" : "text-gray-400 dark:text-gray-500 group-hover:text-[hsl(var(--custom-500))] dark:group-hover:text-[hsl(var(--custom-400))]"}`}
+                        >
+                          {s.icon}
+                        </span>
+                        <span className="flex-1 text-left truncate">
+                          {s.label}
+                        </span>
+                        {s.badge && (
+                          <Badge
+                            variant="secondary"
+                            className="text-[9px] px-1.5 py-0 shrink-0"
+                          >
+                            {s.badge}
+                          </Badge>
+                        )}
                       </button>
                     ))}
                   </>
                 )}
               </div>
-            ) : (
-              /* ── Navegação Normal ── */
-              <>
-                <p className="text-xs font-bold uppercase text-gray-400 mb-3 tracking-wider">
-                  Seções
-                </p>
-                {sections.map((s) => (
-                  <button
-                    key={s.id}
-                    onClick={() => scrollToSection(s.id)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
-                      activeSection === s.id
-                        ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold"
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                    }`}
-                  >
-                    {s.icon}
-                    <span className="flex-1 text-left">{s.label}</span>
-                    {s.badge && (
-                      <Badge
-                        variant="secondary"
-                        className="text-[10px] px-1.5 py-0"
-                      >
-                        {s.badge}
-                      </Badge>
-                    )}
-                  </button>
-                ))}
-              </>
-            )}
+            </div>
           </div>
         </nav>
 
         {/* ─── Conteúdo Principal ─── */}
-        <main className="flex-1 min-w-0 space-y-12">
+        <style>{`
+          .doc-content code:not(pre code) {
+            background: hsl(var(--custom-100));
+            padding: 0.1rem 0.375rem;
+            border-radius: 0.3rem;
+            font-size: 0.72rem;
+            font-family: ui-monospace, 'Cascadia Code', monospace;
+            color: hsl(var(--custom-700));
+            border: 1px solid hsl(var(--custom-200));
+          }
+          .dark .doc-content code:not(pre code) {
+            background: hsl(var(--custom-800) / 0.4);
+            color: hsl(var(--custom-300));
+            border-color: hsl(var(--custom-700) / 0.5);
+          }
+          .doc-content p {
+            line-height: 1.7;
+          }
+        `}</style>
+        <main className="flex-1 min-w-0 space-y-5 doc-content">
           {/* ═══════════════════════════════════════════════ */}
           {/* VISÃO GERAL */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="visao-geral" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="visao-geral"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🏗️ Visão Geral do Sistema
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
@@ -906,14 +1024,14 @@ export default function Documentacao() {
               </InfoCard>
             </div>
 
-            <h3 className="text-lg font-semibold mt-6">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Como os dados fluem no sistema
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
               O fluxo típico de um pedido no ERP Zeelux passa pelas seguintes
               etapas em ordem:
             </p>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 text-sm flex-wrap">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 text-sm flex-wrap">
               {[
                 { emoji: "🛒", label: "Cliente compra" },
                 { emoji: "📥", label: "Webhook Yampi" },
@@ -922,18 +1040,21 @@ export default function Documentacao() {
                 { emoji: "🚚", label: "Enviado" },
                 { emoji: "💰", label: "Contabilidade / NF-e" },
               ].map((step, i, arr) => (
-                <div key={i} className="flex items-center gap-1">
-                  <span className="flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1.5 font-medium text-gray-700 dark:text-gray-300">
-                    {step.emoji} {step.label}
+                <div key={i} className="flex items-center gap-1.5">
+                  <span className="flex items-center gap-2 bg-gradient-to-br from-[hsl(var(--custom-50))] to-white dark:from-[hsl(var(--custom-900))]/60 dark:to-gray-900 border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/50 rounded-xl px-3 py-2 font-medium text-gray-700 dark:text-gray-300 shadow-sm text-xs">
+                    <span className="text-base leading-none">{step.emoji}</span>
+                    {step.label}
                   </span>
                   {i < arr.length - 1 && (
-                    <span className="text-gray-400 text-base">→</span>
+                    <span className="text-[hsl(var(--custom-400))] text-sm font-bold">
+                      →
+                    </span>
                   )}
                 </div>
               ))}
             </div>
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Módulos do Sistema — O que cada parte faz
             </h3>
             <DocTable
@@ -991,8 +1112,11 @@ export default function Documentacao() {
           {/* ═══════════════════════════════════════════════ */}
           {/* ARQUITETURA */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="arquitetura" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="arquitetura"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🧱 Arquitetura & Stack Tecnológico
             </h2>
 
@@ -1005,7 +1129,7 @@ export default function Documentacao() {
                   É tudo o que o usuário vê e interage na tela. As tecnologias
                   usadas para construir essa parte são:
                 </p>
-                <ul className="list-disc list-inside space-y-1">
+                <ul className="list-disc list-inside space-y-1.5 text-sm text-gray-600 dark:text-gray-400 pl-1">
                   <li>
                     <strong>React 18 + TypeScript</strong> — a linguagem e o
                     motor principal que fazem o sistema funcionar no navegador,
@@ -1069,7 +1193,7 @@ export default function Documentacao() {
                   É onde todos os dados ficam salvos e as regras de negócio são
                   aplicadas. Tudo roda no serviço Supabase na nuvem:
                 </p>
-                <ul className="list-disc list-inside space-y-1">
+                <ul className="list-disc list-inside space-y-1.5 text-sm text-gray-600 dark:text-gray-400 pl-1">
                   <li>
                     <strong>PostgreSQL</strong> — o banco de dados relacional
                     onde ficam guardados todos os pedidos, clientes, produtos,
@@ -1127,7 +1251,7 @@ export default function Documentacao() {
               </InfoCard>
             </div>
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Estrutura de Pastas — Como o projeto está organizado
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -1163,7 +1287,7 @@ supabase/
 ├── migrations/     # 7 scripts SQL que criaram e evoluíram o banco de dados
 └── config.toml     # Identificação do projeto Supabase`}</CodeBlock>
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Camadas de Funcionamento do Sistema (App.tsx)
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -1191,12 +1315,15 @@ supabase/
           {/* ═══════════════════════════════════════════════ */}
           {/* AUTENTICAÇÃO */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="autenticacao" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="autenticacao"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🔒 Autenticação & Permissões
             </h2>
 
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Hook: useAuth (hooks/useAuth.tsx)
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
@@ -1253,11 +1380,11 @@ supabase/
               <p>
                 As permissões controlam quais partes do sistema cada usuário
                 pode acessar. Elas são salvas na tabela{" "}
-                <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                   usuarios_permissoes
                 </code>{" "}
                 e carregadas via view{" "}
-                <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                   group_usuarios_permissoes
                 </code>
                 , que devolve uma lista de IDs numerados representando cada
@@ -1322,7 +1449,7 @@ supabase/
               />
               <p className="mt-2">
                 A função do banco{" "}
-                <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                   set_usuario_permissao(usuario_id, permissao_id, value)
                 </code>{" "}
                 ativa ou desativa uma permissão específica para um usuário — sem
@@ -1340,7 +1467,7 @@ supabase/
                 <strong>portaria virtual</strong>: antes de mostrar qualquer
                 página protegida, ele verifica 3 condições em ordem:
               </p>
-              <ul className="list-disc list-inside space-y-1">
+              <ul className="list-disc list-inside space-y-1.5 text-sm text-gray-600 dark:text-gray-400 pl-1">
                 <li>
                   <strong>Carregando (loading = true)</strong> → Exibe um
                   spinner de carregamento enquanto verifica a sessão do usuário
@@ -1365,12 +1492,15 @@ supabase/
           {/* ═══════════════════════════════════════════════ */}
           {/* LAYOUT */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="layout" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="layout"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🧩 Layout & Navegação
             </h2>
 
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               AppLayout (components/layout/AppLayout.tsx)
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
@@ -1382,7 +1512,7 @@ supabase/
             </p>
             <p className="text-gray-600 dark:text-gray-400">
               Internamente, a função{" "}
-              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+              <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                 getModuleFromPath()
               </code>{" "}
               detecta em qual módulo o usuário está (comercial, logística,
@@ -1390,7 +1520,7 @@ supabase/
               menu possa destacar o item ativo corretamente.
             </p>
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               AppHeader (components/layout/AppHeader.tsx)
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
@@ -1423,7 +1553,9 @@ supabase/
               </li>
             </ul>
 
-            <h3 className="text-lg font-semibold mt-4">Sidebars</h3>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
+              Sidebars
+            </h3>
             <DocTable
               headers={["Menu Lateral", "Módulo", "Seções Disponíveis"]}
               rows={[
@@ -1451,7 +1583,7 @@ supabase/
               atual.
             </p>
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               SearchPanel — Busca Global (components/layout/SearchPanel.tsx)
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
@@ -1477,8 +1609,11 @@ supabase/
           {/* ═══════════════════════════════════════════════ */}
           {/* DASHBOARD */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="dashboard" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="dashboard"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               📊 Dashboard
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
@@ -1488,7 +1623,9 @@ supabase/
               resumo completo das vendas e envios no período selecionado.
             </p>
 
-            <h3 className="text-lg font-semibold">Seletor de Período</h3>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
+              Seletor de Período
+            </h3>
             <p className="text-gray-600 dark:text-gray-400">
               Calendário duplo que permite escolher um intervalo de datas para
               filtrar todos os dados do Dashboard. Possui atalhos rápidos: Hoje,
@@ -1499,7 +1636,9 @@ supabase/
               evitando que resultados antigos aparecem misturados com os novos.
             </p>
 
-            <h3 className="text-lg font-semibold mt-3">Métricas (4 cards)</h3>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
+              Métricas (4 cards)
+            </h3>
             <DocTable
               headers={["Cartão", "De onde vem o dado", "O que mostra"]}
               rows={[
@@ -1526,7 +1665,9 @@ supabase/
               ]}
             />
 
-            <h3 className="text-lg font-semibold mt-3">Gráficos (Abas)</h3>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
+              Gráficos (Abas)
+            </h3>
             <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
               <li>
                 <strong>Vendas por Plataforma</strong> — gráfico de barras
@@ -1553,7 +1694,7 @@ supabase/
               </li>
             </ul>
 
-            <h3 className="text-lg font-semibold mt-3">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Consulta ao Banco de Dados
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
@@ -1566,7 +1707,7 @@ supabase/
   .gte('criado_em', startDate)
   .lte('criado_em', endDate)`}</CodeBlock>
 
-            <h3 className="text-lg font-semibold mt-3">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Componente: MetricCard — Cartões de Métrica
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
@@ -1584,12 +1725,15 @@ supabase/
           {/* ═══════════════════════════════════════════════ */}
           {/* COMERCIAL */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="comercial" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="comercial"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🛒 Comercial
             </h2>
 
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Comercial.tsx — Gestão de Pedidos
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
@@ -1725,7 +1869,7 @@ supabase/
               </ol>
             </CollapsibleSection>
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Páginas Complementares
             </h3>
             <DocTable
@@ -1758,8 +1902,11 @@ supabase/
           {/* ═══════════════════════════════════════════════ */}
           {/* PEDIDO */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="pedido" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="pedido"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               📄 Pedido (Detalhe)
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
@@ -1966,12 +2113,17 @@ supabase/
           {/* ═══════════════════════════════════════════════ */}
           {/* CONTABILIDADE */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="contabilidade" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="contabilidade"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               💰 Contabilidade
             </h2>
 
-            <h3 className="text-lg font-semibold">Contabilidade.tsx</h3>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
+              Contabilidade.tsx
+            </h3>
             <p className="text-gray-600 dark:text-gray-400">
               Tela de visualização de pedidos já enviados para fins de controle
               financeiro e fiscal. Acessível apenas para usuários com{" "}
@@ -1982,7 +2134,7 @@ supabase/
               contabil (PedidoContabilidade).
             </p>
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               PedidoContabilidade.tsx
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
@@ -2078,8 +2230,11 @@ supabase/
           {/* ═══════════════════════════════════════════════ */}
           {/* PRODUÇÃO */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="producao" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="producao"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🏭 Produção
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
@@ -2088,7 +2243,9 @@ supabase/
               agregada de todos os itens que precisam ser produzidos.
             </p>
 
-            <h3 className="text-lg font-semibold">Etapas de Produção</h3>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
+              Etapas de Produção
+            </h3>
             <DocTable
               headers={["Status", "Significado"]}
               rows={[
@@ -2161,9 +2318,12 @@ supabase/
           {/* ═══════════════════════════════════════════════ */}
           {/* LOGÍSTICA */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="logistica" className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <Truck className="w-6 h-6 text-blue-500" />
+          <section
+            id="logistica"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))] flex items-center gap-2">
+              <Truck className="w-6 h-6 text-[hsl(var(--custom-500))]" />
               Logística
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
@@ -2175,7 +2335,7 @@ supabase/
             </p>
 
             {/* ── LOGISTICA.TSX ATUAL ── */}
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mt-2">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Logistica.tsx — Versão Atual
             </h3>
 
@@ -2705,16 +2865,18 @@ const FULL_PEDIDO_SELECT = \`
             </CollapsibleSection>
 
             {/* ── LOGISTICA_OLD ── */}
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mt-8 flex items-center gap-2">
-              <Package2 className="w-5 h-5 text-yellow-500" />
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
+              <Package2 className="w-4 h-4 text-amber-500" />
               Logistica_old.tsx — Versão Anterior (Preservada)
             </h3>
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg p-4">
-              <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium mb-1">
+            <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-700/50 rounded-xl p-4">
+              <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-1">
                 ⚠️ Arquivo preservado intencionalmente em{" "}
-                <code>old_codigos/Logistica_old.tsx</code>
+                <code className="bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.5 rounded text-xs font-mono">
+                  old_codigos/Logistica_old.tsx
+                </code>
               </p>
-              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+              <p className="text-sm text-amber-700 dark:text-amber-300 mt-2">
                 Esta versão contém funcionalidades mais complexas que foram
                 removidas da versão atual para simplificação do fluxo de
                 trabalho. <strong>Não deve ser deletada</strong> — pode ser
@@ -2894,12 +3056,15 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
           {/* ═══════════════════════════════════════════════ */}
           {/* ESTOQUE */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="estoque" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="estoque"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               📦 Estoque
             </h2>
 
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Estoque.tsx — Gestão de Produtos
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
@@ -2976,7 +3141,7 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
               </ul>
             </CollapsibleSection>
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               ListaEmbalagens.tsx — Gestão de Embalagens
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
@@ -2986,7 +3151,9 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
               Peso — dados essenciais para o cálculo de frete.
             </p>
 
-            <h3 className="text-lg font-semibold mt-4">SkuPlataformas.tsx</h3>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
+              SkuPlataformas.tsx
+            </h3>
             <p className="text-gray-600 dark:text-gray-400">
               Página reservada para futura funcionalidade de gestão de SKU por
               plataforma de venda. <strong>Ainda não implementada</strong> —
@@ -2997,8 +3164,11 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
           {/* ═══════════════════════════════════════════════ */}
           {/* LEADS */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="leads" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="leads"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               👥 Leads
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
@@ -3009,7 +3179,9 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
               tela é converter esses leads em pedidos reais.
             </p>
 
-            <h3 className="text-lg font-semibold">Abas de Filtro</h3>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
+              Abas de Filtro
+            </h3>
             <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
               <li>
                 <strong>Todos</strong> — exibe todos os leads independente do
@@ -3027,7 +3199,7 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
               </li>
             </ul>
 
-            <h3 className="text-lg font-semibold mt-3">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Converter Lead em Pedido
             </h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -3039,7 +3211,9 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
               de lead (PIX ou Carrinho Abandonado).
             </p>
 
-            <h3 className="text-lg font-semibold mt-3">Ações por Lead</h3>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
+              Ações por Lead
+            </h3>
             <DocTable
               headers={["Ação", "Descrição"]}
               rows={[
@@ -3058,8 +3232,11 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
           {/* ═══════════════════════════════════════════════ */}
           {/* CONFIGURAÇÕES */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="configuracoes" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="configuracoes"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               ⚙️ Configurações
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
@@ -3146,12 +3323,15 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
           {/* ═══════════════════════════════════════════════ */}
           {/* NOTIFICAÇÕES */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="notificacoes" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="notificacoes"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🔔 Notificações
             </h2>
 
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               NotificacoesContext (contexts/NotificacoesContext.tsx)
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
@@ -3195,7 +3375,7 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
               </p>
             </CollapsibleSection>
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               NotificacoesDropdown — Painel do Sininho
               (components/notifications/NotificacoesDropdown.tsx)
             </h3>
@@ -3225,8 +3405,11 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
           {/* ═══════════════════════════════════════════════ */}
           {/* HOOKS */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="hooks" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="hooks"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🪝 Hooks Customizados
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
@@ -3266,7 +3449,7 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
                 Implementado como um <strong>Context Provider</strong> — envolve
                 todo o sistema e disponibiliza os dados do usuário logado para
                 qualquer componente filho com uma única chamada:{" "}
-                <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                   const {"{"} user, hasPermission, signOut {"}"} = useAuth()
                 </code>
                 .
@@ -3276,32 +3459,32 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
                   <strong>Inicialização</strong> — ao montar, verifica a sessão
                   ativa no Supabase Auth. Se houver sessão válida, busca o
                   perfil completo do usuário na view{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     usuarios_completos
                   </code>
                 </li>
                 <li>
                   <strong>Escuta de mudanças</strong> — monitora eventos de
                   autenticação (login, logout, expiração de token) via{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     onAuthStateChange
                   </code>{" "}
                   e atualiza o estado automaticamente
                 </li>
                 <li>
                   <strong>hasPermission(id)</strong> — verifica se o array{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     permissions
                   </code>{" "}
                   contém o ID solicitado. Uso:{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     {"if (hasPermission(50)) { // mostrar dashboard }"}
                   </code>
                 </li>
                 <li>
                   <strong>signOut()</strong> — faz logout e trata o caso de
                   sessão já expirada (
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     session_not_found
                   </code>
                   ) sem lançar erro
@@ -3322,15 +3505,15 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
               <ul className="list-disc list-inside space-y-1 text-sm">
                 <li>
                   <strong>Busca do banco</strong> — ao montar, consulta o campo{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     cores_hsl
                   </code>{" "}
                   da tabela{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     empresas
                   </code>{" "}
                   para o{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     empresa_id
                   </code>{" "}
                   do usuário logado
@@ -3338,7 +3521,7 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
                 <li>
                   <strong>Aplicação CSS</strong> — define variáveis CSS no
                   elemento{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     document.documentElement
                   </code>
                   , tornando-as disponíveis globalmente: --custom-50,
@@ -3346,15 +3529,15 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
                 </li>
                 <li>
                   <strong>Modo escuro</strong> — utiliza um{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     MutationObserver
                   </code>{" "}
                   para detectar quando a classe{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     dark
                   </code>{" "}
                   é adicionada/removida do{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     &lt;html&gt;
                   </code>{" "}
                   e reaplicar as cores corretas para cada modo
@@ -3377,19 +3560,19 @@ const quantidadeEmbalada = item.embalado ? quantidade : 0;
                   <strong>Ponto de corte</strong> — a tela é considerada
                   "mobile" quando sua largura é menor que <strong>768px</strong>{" "}
                   (breakpoint{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     md
                   </code>{" "}
                   do Tailwind)
                 </li>
                 <li>
                   <strong>Media Query</strong> — usa{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     window.matchMedia("(max-width: 767px)")
                   </code>{" "}
                   para monitorar mudanças de tamanho sem precisar escutar o
                   evento{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     resize
                   </code>{" "}
                   diretamente
@@ -3432,7 +3615,7 @@ toast({
                 </li>
                 <li>
                   <strong>Integração com Sonner</strong> — o{" "}
-                  <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                     Toaster
                   </code>{" "}
                   do shadcn/ui é montado globalmente no App.tsx para renderizar
@@ -3445,12 +3628,15 @@ toast({
           {/* ═══════════════════════════════════════════════ */}
           {/* SUPABASE */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="supabase" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="supabase"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🗄️ Supabase & Banco de Dados
             </h2>
 
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Tabelas Principais — Onde cada informação fica guardada
             </h3>
             <DocTable
@@ -3557,7 +3743,7 @@ toast({
               ]}
             />
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Views — Consultas Pré-montadas
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -3611,7 +3797,7 @@ toast({
               ]}
             />
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               RPCs — Funções Especiais do Banco
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -3650,7 +3836,7 @@ toast({
               ]}
             />
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Triggers — Ações Automáticas do Banco
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -3682,7 +3868,7 @@ toast({
               ]}
             />
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Storage — Armazenamento de Arquivos na Nuvem
             </h3>
             <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
@@ -3707,8 +3893,11 @@ toast({
           {/* ═══════════════════════════════════════════════ */}
           {/* EDGE FUNCTIONS */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="edge-functions" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="edge-functions"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               ⚡ Edge Functions (Deno)
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
@@ -3929,8 +4118,11 @@ POST /functions/v1/gerar-etiqueta-ml
           {/* ═══════════════════════════════════════════════ */}
           {/* WEBHOOKS */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="webhooks" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="webhooks"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🔗 Webhooks & Integrações Externas
             </h2>
 
@@ -3965,7 +4157,7 @@ POST /functions/v1/gerar-etiqueta-ml
               ]}
             />
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               Funções na Nuvem Chamadas Pelo Sistema (Frontend)
             </h3>
             <DocTable
@@ -4008,12 +4200,15 @@ POST /functions/v1/gerar-etiqueta-ml
           {/* ═══════════════════════════════════════════════ */}
           {/* TEMAS */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="temas" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="temas"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🎨 Tema & Cores Dinâmicas
             </h2>
 
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               useEmpresaColors (hooks/useEmpresaColors.tsx)
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
@@ -4073,12 +4268,15 @@ var(--gradient-primary)`}</CodeBlock>
           {/* ═══════════════════════════════════════════════ */}
           {/* TIPOS */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="tipos" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="tipos"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               📝 Tipos & Interfaces
             </h2>
 
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               types/index.ts — Estrutura dos Objetos do Sistema
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -4129,7 +4327,7 @@ var(--gradient-primary)`}</CodeBlock>
               ]}
             />
 
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 before:content-[''] before:w-1 before:h-4 before:bg-[hsl(var(--custom-400))] before:rounded-full">
               integrations/supabase/types.ts — Tipos Gerados Automaticamente
             </h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -4145,8 +4343,11 @@ var(--gradient-primary)`}</CodeBlock>
           {/* ═══════════════════════════════════════════════ */}
           {/* PÁGINAS PÚBLICAS */}
           {/* ═══════════════════════════════════════════════ */}
-          <section id="paginas-publicas" className="space-y-4">
-            <h2 className="text-2xl font-bold border-b pb-3 dark:border-gray-700">
+          <section
+            id="paginas-publicas"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]">
               🌐 Páginas Públicas
             </h2>
 
@@ -4223,18 +4424,21 @@ var(--gradient-primary)`}</CodeBlock>
           </section>
 
           {/* ─── Dashboard Comercial ─── */}
-          <section id="dashboard-comercial" className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <BarChart2 className="w-6 h-6 text-purple-500" />
+          <section
+            id="dashboard-comercial"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))] flex items-center gap-2">
+              <BarChart2 className="w-6 h-6 text-[hsl(var(--custom-500))]" />
               Dashboard Comercial
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
               Painel de controle exclusivo para a equipe comercial, acessível em{" "}
-              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+              <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                 /dashboard-comercial
               </code>
               . Utiliza{" "}
-              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+              <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                 ComercialSidebar
               </code>{" "}
               como navegação lateral e exibe métricas avançadas de vendas,
@@ -4430,19 +4634,22 @@ var(--gradient-primary)`}</CodeBlock>
           </section>
 
           {/* ─── Histórico de Movimentações ─── */}
-          <section id="historico" className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <History className="w-6 h-6 text-blue-500" />
+          <section
+            id="historico"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))] flex items-center gap-2">
+              <History className="w-6 h-6 text-[hsl(var(--custom-500))]" />
               Histórico de Movimentações
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
               Sistema de auditoria que registra todas as alterações feitas em
               pedidos. O módulo é composto pela biblioteca{" "}
-              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+              <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                 src/lib/historicoMovimentacoes.ts
               </code>{" "}
               e pela página{" "}
-              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+              <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                 src/pages/HistoricoMovimentacoes.tsx
               </code>
               .
@@ -4547,8 +4754,11 @@ await registrarHistoricoMovimentacao(
           </section>
 
           {/* ─── Web Push (PWA) ─── */}
-          <section id="push-notifications" className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <section
+            id="push-notifications"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))] flex items-center gap-2">
               <Smartphone className="w-6 h-6 text-green-500" />
               Web Push — PWA
             </h2>
@@ -4688,15 +4898,18 @@ npx web-push generate-vapid-keys`}</CodeBlock>
           </section>
 
           {/* ─── Tipos de Lead ─── */}
-          <section id="tipos-lead" className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <section
+            id="tipos-lead"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))] flex items-center gap-2">
               <Tags className="w-6 h-6 text-orange-500" />
               Tipos de Lead
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
               Página de gerenciamento das categorias de lead usadas no módulo
               Comercial. Acessível em{" "}
-              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+              <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                 /tipos-de-lead
               </code>
               , usa o <code>ComercialSidebar</code>. Os tipos são armazenados na
@@ -4747,14 +4960,17 @@ npx web-push generate-vapid-keys`}</CodeBlock>
           </section>
 
           {/* ─── Componentes Reutilizáveis ─── */}
-          <section id="componentes" className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <Component className="w-6 h-6 text-indigo-500" />
+          <section
+            id="componentes"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))] flex items-center gap-2">
+              <Component className="w-6 h-6 text-[hsl(var(--custom-500))]" />
               Componentes Reutilizáveis
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
               Todos os componentes customizados estão em{" "}
-              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+              <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                 src/components/
               </code>
               . Abaixo, um mapa de cada subpasta e seus componentes.
@@ -4939,14 +5155,17 @@ npx web-push generate-vapid-keys`}</CodeBlock>
           </section>
 
           {/* ─── Rotas do Sistema ─── */}
-          <section id="rotas" className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <section
+            id="rotas"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))] flex items-center gap-2">
               <Route className="w-6 h-6 text-teal-500" />
               Rotas do Sistema
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
               Todas as rotas são declaradas em{" "}
-              <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+              <code className="bg-[hsl(var(--custom-100))] dark:bg-[hsl(var(--custom-800))]/50 px-1.5 py-0.5 rounded border border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40 text-[hsl(var(--custom-700))] dark:text-[hsl(var(--custom-300))] text-xs font-mono">
                 src/App.tsx
               </code>{" "}
               usando React Router DOM v6. Rotas protegidas são encapsuladas pelo
@@ -5098,8 +5317,11 @@ npx web-push generate-vapid-keys`}</CodeBlock>
           </section>
 
           {/* ─── Deploy & Configuração ─── */}
-          <section id="deploy" className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <section
+            id="deploy"
+            className="space-y-6 bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-[hsl(var(--custom-100))] dark:border-white/[0.05] scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white pb-4 border-b-2 border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))] flex items-center gap-2">
               <ServerCog className="w-6 h-6 text-gray-500" />
               Deploy & Configuração
             </h2>
@@ -5268,29 +5490,46 @@ supabase secrets set MINHA_VAR=valor`}</CodeBlock>
           </section>
 
           {/* ─── Footer ─── */}
-          <footer className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-sm text-gray-500 dark:text-gray-400 space-y-2">
-            <p>Documentação gerada — ERP Zeelux</p>
-            <p>
-              Última atualização:{" "}
-              {new Date().toLocaleDateString("pt-BR", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              })}
-            </p>
-            <div className="flex justify-center gap-4 mt-3">
-              <Link
-                to="/termos-servico"
-                className="text-blue-600 hover:underline"
-              >
-                Termos de Serviço
-              </Link>
-              <Link
-                to="/politica-privacidade"
-                className="text-blue-600 hover:underline"
-              >
-                Política de Privacidade
-              </Link>
+          <footer className="mt-8 pt-6 border-t border-[hsl(var(--custom-200))] dark:border-[hsl(var(--custom-700))]/40">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-[hsl(var(--custom-100))] dark:border-white/[0.05] p-6 text-center space-y-3">
+              <div className="flex items-center justify-center gap-2 text-[hsl(var(--custom-500))] dark:text-[hsl(var(--custom-400))]">
+                <BookOpen className="w-5 h-5" />
+                <span className="font-semibold text-gray-700 dark:text-gray-300">
+                  ERP Zeelux — Documentação Técnica
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 dark:text-gray-500">
+                Última atualização:{" "}
+                {new Date().toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
+              <div className="flex justify-center gap-4">
+                <Link
+                  to="/termos-servico"
+                  className="text-xs text-[hsl(var(--custom-600))] dark:text-[hsl(var(--custom-400))] hover:text-[hsl(var(--custom-700))] dark:hover:text-[hsl(var(--custom-300))] transition-colors"
+                >
+                  Termos de Serviço
+                </Link>
+                <span className="text-gray-300 dark:text-gray-600">·</span>
+                <Link
+                  to="/politica-privacidade"
+                  className="text-xs text-[hsl(var(--custom-600))] dark:text-[hsl(var(--custom-400))] hover:text-[hsl(var(--custom-700))] dark:hover:text-[hsl(var(--custom-300))] transition-colors"
+                >
+                  Política de Privacidade
+                </Link>
+                <span className="text-gray-300 dark:text-gray-600">·</span>
+                <button
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "smooth" })
+                  }
+                  className="text-xs text-[hsl(var(--custom-600))] dark:text-[hsl(var(--custom-400))] hover:text-[hsl(var(--custom-700))] dark:hover:text-[hsl(var(--custom-300))] transition-colors"
+                >
+                  ↑ Voltar ao topo
+                </button>
+              </div>
             </div>
           </footer>
         </main>
