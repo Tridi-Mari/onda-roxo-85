@@ -6,7 +6,7 @@ import {
   Box, Home, Code, Database, Zap, Shield, Bell, Search, Layout, Palette, Globe, Key,
   ChevronDown, ChevronRight, Layers, GitBranch, Server, Eye, Upload, ClipboardList, Factory,
   UserPlus, CreditCard, BarChart, PieChart, Calendar, Filter, Copy, Boxes, ArrowLeftRight,
-  BookOpen, Target, RefreshCw, AlertTriangle, Lock, Webhook
+  BookOpen, Target, RefreshCw, Webhook
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -95,78 +95,16 @@ function InfoCard({ title, icon, children }: { title: string; icon: React.ReactN
   );
 }
 
-/* ─── Senha de acesso ────────────────────────────────── */
-const SENHA_DOCUMENTACAO = "zeelux2025";
-
 /* ═════════════════════════════════════════════════════════
    ═══ COMPONENTE PRINCIPAL ══════════════════════════════
    ═════════════════════════════════════════════════════════ */
 export default function Documentacao() {
   const [activeSection, setActiveSection] = useState("visao-geral");
-  const [autenticado, setAutenticado] = useState(false);
-  const [senha, setSenha] = useState("");
-  const [erroSenha, setErroSenha] = useState(false);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (senha === SENHA_DOCUMENTACAO) {
-      setAutenticado(true);
-      setErroSenha(false);
-    } else {
-      setErroSenha(true);
-    }
-  };
 
   const scrollToSection = (id: string) => {
     setActiveSection(id);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-
-  if (!autenticado) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <div className="mx-auto w-14 h-14 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center">
-              <Lock className="w-7 h-7 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Documentação Técnica</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Digite a senha para acessar a documentação do sistema.</p>
-          </div>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="senha" className="text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
-              <input
-                id="senha"
-                type="password"
-                value={senha}
-                onChange={(e) => { setSenha(e.target.value); setErroSenha(false); }}
-                placeholder="••••••••"
-                autoFocus
-                className={`w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors ${
-                  erroSenha
-                    ? "border-red-500 focus:ring-2 focus:ring-red-200 dark:focus:ring-red-800"
-                    : "border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 focus:border-blue-500"
-                } bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
-              />
-              {erroSenha && <p className="text-sm text-red-500 flex items-center gap-1"><AlertTriangle className="w-3.5 h-3.5" /> Senha incorreta. Tente novamente.</p>}
-            </div>
-            <button
-              type="submit"
-              className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition-colors"
-            >
-              Acessar Documentação
-            </button>
-          </form>
-          <div className="text-center">
-            <Link to="/" className="text-sm text-blue-600 hover:underline flex items-center justify-center gap-1">
-              <Home className="w-3.5 h-3.5" /> Voltar ao sistema
-            </Link>
-          </div>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
