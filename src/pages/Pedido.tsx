@@ -463,6 +463,12 @@ export default function Pedido() {
   const [isDraggingLabel, setIsDraggingLabel] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Estados para edição de preço do item
+  const [editPrecoItemOpen, setEditPrecoItemOpen] = useState(false);
+  const [editPrecoItem, setEditPrecoItem] = useState<any | null>(null);
+  const [editPrecoItemStr, setEditPrecoItemStr] = useState("");
+  const [savingPrecoItem, setSavingPrecoItem] = useState(false);
+
   const formatCurrencyBR = (n: number) => {
     if (isNaN(n) || !isFinite(n)) return "0,00";
     return n.toFixed(2).replace(".", ",");
@@ -1784,6 +1790,52 @@ export default function Pedido() {
     }
   };
 
+  const handleSavePrecoItem = async () => {
+    if (!editPrecoItem || !pedido) return;
+    const novoPreco = parseCurrencyBR(editPrecoItemStr);
+    if (isNaN(novoPreco) || novoPreco < 0) {
+      toast({ title: "Valor inválido", variant: "destructive" });
+      return;
+    }
+    setSavingPrecoItem(true);
+    try {
+      const precoAntigo = Number(
+        editPrecoItem.preco_unitario || editPrecoItem.produto?.preco || 0,
+      );
+      const { error } = await supabase
+        .from("itens_pedido")
+        .update({ preco_unitario: novoPreco })
+        .eq("id", editPrecoItem.id);
+      if (error) throw error;
+
+      await registrarHistoricoMovimentacao(
+        pedido.id,
+        `Preço do item "${editPrecoItem.produto?.nome || "Produto"}${editPrecoItem.variacao?.nome ? ` (${editPrecoItem.variacao.nome})` : ""}" alterado de R$ ${precoAntigo.toFixed(2)} para R$ ${novoPreco.toFixed(2)}`,
+      );
+
+      setPedido((prev: any) => ({
+        ...prev,
+        itens: prev.itens.map((it: any) =>
+          it.id === editPrecoItem.id
+            ? { ...it, preco_unitario: novoPreco }
+            : it,
+        ),
+      }));
+
+      toast({ title: "Preço atualizado com sucesso" });
+      setEditPrecoItemOpen(false);
+      setEditPrecoItem(null);
+    } catch (err: any) {
+      toast({
+        title: "Erro ao atualizar preço",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSavingPrecoItem(false);
+    }
+  };
+
   const handleDeletePedido = async () => {
     if (!pedido) return;
     try {
@@ -2649,10 +2701,37 @@ export default function Pedido() {
                             </TableCell>
                             <TableCell>{item.quantidade}</TableCell>
                             <TableCell>
-                              R${" "}
-                              {Number(
-                                item.preco_unitario || item.produto?.preco || 0,
-                              ).toFixed(2)}
+                              <div className="flex items-center gap-1">
+                                <span>
+                                  R${" "}
+                                  {Number(
+                                    item.preco_unitario ||
+                                      item.produto?.preco ||
+                                      0,
+                                  ).toFixed(2)}
+                                </span>
+                                {!readonly && (
+                                  <button
+                                    className="text-muted-foreground hover:text-foreground transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditPrecoItem(item);
+                                      setEditPrecoItemStr(
+                                        formatCurrencyBR(
+                                          Number(
+                                            item.preco_unitario ||
+                                              item.produto?.preco ||
+                                              0,
+                                          ),
+                                        ),
+                                      );
+                                      setEditPrecoItemOpen(true);
+                                    }}
+                                  >
+                                    <Pencil className="h-3 w-3" />
+                                  </button>
+                                )}
+                              </div>
                             </TableCell>
                             <TableCell>
                               R${" "}
@@ -4100,6 +4179,56 @@ export default function Pedido() {
                   {removingItem ? "Removendo..." : "Confirmar remoção"}
                 </Button>
               </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog de edição de preço unitário do item */}
+        <Dialog
+          open={editPrecoItemOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditPrecoItemOpen(false);
+              setEditPrecoItem(null);
+            }
+          }}
+        >
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Editar preço unitário</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              {editPrecoItem && (
+                <p className="text-sm text-muted-foreground">
+                  {editPrecoItem.produto?.nome || "Produto"}
+                  {editPrecoItem.variacao?.nome
+                    ? ` — ${editPrecoItem.variacao.nome}`
+                    : ""}
+                </p>
+              )}
+              <Input
+                value={editPrecoItemStr}
+                onChange={(e) => setEditPrecoItemStr(e.target.value)}
+                placeholder="Ex: 150,00"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSavePrecoItem();
+                }}
+                autoFocus
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setEditPrecoItemOpen(false);
+                  setEditPrecoItem(null);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button onClick={handleSavePrecoItem} disabled={savingPrecoItem}>
+                {savingPrecoItem ? "Salvando..." : "Salvar"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
