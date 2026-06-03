@@ -3505,7 +3505,6 @@ export default function Pedido() {
                           selected={tempoGanho}
                           onSelect={setTempoGanho}
                           locale={ptBR}
-                          disabled={(date) => date < new Date()}
                           initialFocus
                         />
                       </PopoverContent>
