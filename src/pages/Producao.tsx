@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, Loader2, TriangleAlert, List, X, Search, Printer, Truck, PackageCheck, CheckSquare, Users, CheckCircle2, XCircle, Clock, Copy, Check } from 'lucide-react';
+import { ChevronDown, Loader2, TriangleAlert, List, X, Search, Printer, Truck, PackageCheck, CheckSquare, Users, CheckCircle2, XCircle, Clock, Copy, Check, CalendarCheck, ShoppingBag } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -102,6 +102,20 @@ type PlatformSectionProps = {
   urgentesSubTab?: string;
   onUrgentesMainTabChange?: (tab: UrgenteMainTab) => void;
   onUrgentesSubTabChange?: (subTab: string) => void;
+};
+
+type EnviarHojeOrder = {
+  id: string;
+  id_externo: string | null;
+  tempo_ganho: string | null;
+  criado_em: string | null;
+  valor_total: number | null;
+  etiqueta_ml: boolean | null;
+  etiqueta_envio_id: string | null;
+  plataforma_nome: string | null;
+  plataforma_img: string | null;
+  cliente_nome: string | null;
+  itens: Array<{ quantidade: number; nome_produto: string; nome_variacao: string | null; img_url: string | null }>;
 };
 
 const LEADS_PLATFORM_IDS = new Set([
@@ -895,6 +909,96 @@ function PlatformSection({
   );
 }
 
+function EnviarHojeOrderRow({
+  order,
+  expanded,
+  onToggle,
+  onGenerateLabel,
+  processing,
+}: {
+  order: EnviarHojeOrder;
+  expanded: boolean;
+  onToggle: () => void;
+  onGenerateLabel: () => void;
+  processing: boolean;
+}) {
+  const jaGerada = order.etiqueta_envio_id === ETIQUETA_DISPONIVEL_ID;
+  return (
+    <div className="rounded-lg border bg-card shadow-sm">
+      <div
+        className="flex items-center gap-2 px-3 py-2 cursor-pointer select-none"
+        onClick={onToggle}
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            {order.plataforma_img && (
+              <img src={order.plataforma_img} alt={order.plataforma_nome ?? ''} className="h-4 w-4 rounded-sm object-contain" />
+            )}
+            {order.plataforma_nome && (
+              <span className="text-xs text-muted-foreground font-medium">{order.plataforma_nome}</span>
+            )}
+            {order.id_externo && (
+              <span className="text-xs font-bold text-foreground">{order.id_externo}</span>
+            )}
+            {order.cliente_nome && (
+              <span className="text-xs text-muted-foreground truncate max-w-[140px]">{order.cliente_nome}</span>
+            )}
+            {order.tempo_ganho && (
+              <span className="text-[10px] bg-blue-100 text-blue-700 rounded px-1.5 py-0.5 font-medium">
+                {new Date(order.tempo_ganho).toLocaleDateString('pt-BR')}
+              </span>
+            )}
+          </div>
+          <div className="text-[11px] text-muted-foreground mt-0.5">
+            {order.itens.length} item(ns) ·{' '}
+            {order.itens.reduce((s, i) => s + i.quantidade, 0)} unid.
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+          {jaGerada ? (
+            <Badge variant="secondary" className="text-[10px]">Etiqueta gerada</Badge>
+          ) : (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-7 px-2 text-xs"
+              disabled={processing || !order.id_externo}
+              onClick={onGenerateLabel}
+            >
+              {processing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Truck className="h-3 w-3" />}
+              <span className="ml-1">Etiqueta</span>
+            </Button>
+          )}
+        </div>
+        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform shrink-0 ${expanded ? 'rotate-180' : ''}`} />
+      </div>
+      {expanded && (
+        <div className="border-t px-3 py-2 space-y-1.5">
+          {order.itens.map((item, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              {item.img_url ? (
+                <img src={item.img_url} alt={item.nome_produto} className="h-9 w-9 rounded-md object-cover border shrink-0" />
+              ) : (
+                <div className="h-9 w-9 rounded-md border bg-muted flex items-center justify-center shrink-0">
+                  <span className="text-[8px] text-muted-foreground">sem foto</span>
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-xs font-medium leading-tight">{item.nome_produto}</p>
+                {item.nome_variacao && (
+                  <p className="text-[10px] text-muted-foreground leading-tight">{item.nome_variacao}</p>
+                )}
+              </div>
+              <span className="ml-auto text-xs font-bold shrink-0">×{item.quantidade}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ProductionPage() {
   const urgentesRanges = useMemo(() => getUrgentesDateRanges(new Date()), []);
   const [summaryItems, setSummaryItems] = useState<ProducaoItem[]>([]);
@@ -1001,6 +1105,15 @@ export function ProductionPage() {
   const [singleLabelProgress, setSingleLabelProgress] = useState<SingleLabelProgress | null>(null);
   const [saldoMelhorEnvio, setSaldoMelhorEnvio] = useState<number | null>(null);
   const [loadingSaldo, setLoadingSaldo] = useState(false);
+
+  // Card ENVIAR HOJE
+  const [enviarHojeExpanded, setEnviarHojeExpanded] = useState(false);
+  const [enviarHojeSubTab, setEnviarHojeSubTab] = useState<'prazo' | 'marketplace'>('prazo');
+  const [enviarHojeLoading, setEnviarHojeLoading] = useState(false);
+  const [enviarHojeError, setEnviarHojeError] = useState<string | null>(null);
+  const [enviarHojePedidos, setEnviarHojePedidos] = useState<EnviarHojeOrder[]>([]);
+  const [enviarHojeMarketplace, setEnviarHojeMarketplace] = useState<EnviarHojeOrder[]>([]);
+  const [enviarHojeExpandedId, setEnviarHojeExpandedId] = useState<string | null>(null);
 
   // Modal de Pedidos do Produto (relação de pedidos)
   type ProdutoModalItem = { produto_id: string | null; variacao_id: string | null; nomeProduto: string; nomeVariacao: string | null; imgUrl: string | null };
@@ -1375,6 +1488,82 @@ export function ProductionPage() {
 
   // Busca o saldo atual do Melhor Envio e atualiza o estado local.
   // Retorna o saldo (número) ou null em caso de falha.
+  const fetchEnviarHoje = async () => {
+    setEnviarHojeLoading(true);
+    setEnviarHojeError(null);
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const PEDIDO_SELECT = `id, id_externo, tempo_ganho, criado_em, valor_total, etiqueta_ml, etiqueta_envio_id, plataforma:plataformas(nome, img_url), cliente:clientes(nome), itens_pedido(quantidade, produto:produtos(nome, img_url), variacao:variacoes_produto(nome, img_url))`;
+
+      const mapPedido = (p: any): EnviarHojeOrder => {
+        const plataforma = Array.isArray(p.plataforma) ? p.plataforma[0] : p.plataforma;
+        const cliente = Array.isArray(p.cliente) ? p.cliente[0] : p.cliente;
+        return {
+          id: p.id,
+          id_externo: p.id_externo,
+          tempo_ganho: p.tempo_ganho,
+          criado_em: p.criado_em,
+          valor_total: p.valor_total,
+          etiqueta_ml: p.etiqueta_ml,
+          etiqueta_envio_id: p.etiqueta_envio_id,
+          plataforma_nome: plataforma?.nome ?? null,
+          plataforma_img: plataforma?.img_url ?? null,
+          cliente_nome: cliente?.nome ?? null,
+          itens: (p.itens_pedido || []).map((it: any) => {
+            const prod = Array.isArray(it.produto) ? it.produto[0] : it.produto;
+            const vari = Array.isArray(it.variacao) ? it.variacao[0] : it.variacao;
+            return {
+              quantidade: it.quantidade ?? 1,
+              nome_produto: prod?.nome ?? 'Produto',
+              nome_variacao: vari?.nome ?? null,
+              img_url: vari?.img_url ?? prod?.img_url ?? null,
+            };
+          }),
+        };
+      };
+
+      // 1. Pedidos com tempo_ganho = hoje
+      const { data: tgData, error: tgErr } = await (supabase as any)
+        .from('pedidos')
+        .select(PEDIDO_SELECT)
+        .gte('tempo_ganho', `${today}T00:00:00.000Z`)
+        .lte('tempo_ganho', `${today}T23:59:59.999Z`)
+        .eq('pedido_liberado', true);
+      if (tgErr) throw tgErr;
+      setEnviarHojePedidos(
+        (tgData || []).map(mapPedido).filter((p: EnviarHojeOrder) => p.etiqueta_envio_id !== ETIQUETA_DISPONIVEL_ID),
+      );
+
+      // 2. Pedidos de marketplace: usa itens urgentes de hoje (diasParaEnvio: 0) filtrados para ecommerce
+      const urgentesToday = urgentesSummaryByRange['r1_10'] ?? [];
+      const marketplaceItems = filterUrgentesItems(urgentesToday, 'ecommerce', '');
+      const marketplaceIds = Array.from(
+        new Set(marketplaceItems.map((i) => i.id_externo).filter((id): id is string => !!id && id.trim().length > 0)),
+      );
+      if (marketplaceIds.length > 0) {
+        const { data: mktData, error: mktErr } = await (supabase as any)
+          .from('pedidos')
+          .select(PEDIDO_SELECT)
+          .in('id_externo', marketplaceIds);
+        if (mktErr) throw mktErr;
+        setEnviarHojeMarketplace(
+          (mktData || []).map(mapPedido).filter((p: EnviarHojeOrder) => p.etiqueta_envio_id !== ETIQUETA_DISPONIVEL_ID),
+        );
+      } else {
+        setEnviarHojeMarketplace([]);
+      }
+    } catch (err: any) {
+      setEnviarHojeError(err?.message || String(err));
+    } finally {
+      setEnviarHojeLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void fetchEnviarHoje();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const fetchSaldoMelhorEnvio = async (): Promise<number | null> => {
     setLoadingSaldo(true);
     try {
@@ -2453,6 +2642,96 @@ export function ProductionPage() {
               </CardContent>
             </Card>
 
+            {/* Card ENVIAR HOJE */}
+            <Card className="overflow-hidden" style={{ backgroundColor: '#0088ff0e', borderColor: '#0088ff' }}>
+              <CardHeader
+                className="pb-3 flex items-start justify-between gap-2 cursor-pointer select-none"
+                onClick={() => { setEnviarHojeExpanded((prev) => !prev); setEnviarHojeExpandedId(null); }}
+              >
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-sm tracking-wide md:text-base" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+                    <CalendarCheck className="h-4 w-4 text-blue-600" />
+                    ENVIAR HOJE
+                  </CardTitle>
+                  <p className="text-xs text-black">Pedidos com prazo de envio hoje e pedidos de marketplace.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-blue-700">
+                    {enviarHojePedidos.length + enviarHojeMarketplace.length} pedido(s)
+                  </span>
+                  <ChevronDown className={`h-4 w-4 text-blue-600 transition-transform ${enviarHojeExpanded ? 'rotate-180' : ''}`} />
+                </div>
+              </CardHeader>
+              {enviarHojeExpanded && (
+                <CardContent className="space-y-3">
+                  {enviarHojeLoading && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Carregando pedidos para hoje...
+                    </div>
+                  )}
+                  {enviarHojeError && <div className="text-sm text-red-600">{enviarHojeError}</div>}
+                  {!enviarHojeLoading && !enviarHojeError && (
+                    <>
+                      <div className="flex gap-0 border-b">
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setEnviarHojeSubTab('prazo'); }}
+                          className={`px-3 py-1.5 text-xs font-medium border-b-2 transition-colors ${enviarHojeSubTab === 'prazo' ? 'border-blue-600 text-blue-700' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                        >
+                          PRAZO HOJE ({enviarHojePedidos.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setEnviarHojeSubTab('marketplace'); }}
+                          className={`px-3 py-1.5 text-xs font-medium border-b-2 transition-colors flex items-center gap-1 ${enviarHojeSubTab === 'marketplace' ? 'border-blue-600 text-blue-700' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                        >
+                          <ShoppingBag className="h-3 w-3" />
+                          MARKETPLACE ({enviarHojeMarketplace.length})
+                        </button>
+                      </div>
+                      {enviarHojeSubTab === 'prazo' && (
+                        <div className="space-y-2">
+                          {enviarHojePedidos.length === 0 ? (
+                            <div className="text-sm text-muted-foreground">Nenhum pedido com prazo de envio hoje.</div>
+                          ) : (
+                            enviarHojePedidos.map((p) => (
+                              <EnviarHojeOrderRow
+                                key={p.id}
+                                order={p}
+                                expanded={enviarHojeExpandedId === p.id}
+                                onToggle={() => setEnviarHojeExpandedId((prev) => (prev === p.id ? null : p.id))}
+                                onGenerateLabel={() => { if (p.id_externo) void handleGenerateLabel(p.id_externo); }}
+                                processing={processingLabels.has(p.id_externo ?? '')}
+                              />
+                            ))
+                          )}
+                        </div>
+                      )}
+                      {enviarHojeSubTab === 'marketplace' && (
+                        <div className="space-y-2">
+                          {enviarHojeMarketplace.length === 0 ? (
+                            <div className="text-sm text-muted-foreground">Nenhum pedido de marketplace para hoje.</div>
+                          ) : (
+                            enviarHojeMarketplace.map((p) => (
+                              <EnviarHojeOrderRow
+                                key={p.id}
+                                order={p}
+                                expanded={enviarHojeExpandedId === p.id}
+                                onToggle={() => setEnviarHojeExpandedId((prev) => (prev === p.id ? null : p.id))}
+                                onGenerateLabel={() => { if (p.id_externo) void handleGenerateLabel(p.id_externo); }}
+                                processing={processingLabels.has(p.id_externo ?? '')}
+                              />
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </CardContent>
+              )}
+            </Card>
+
             {SECTION_CONFIGS.map((section) => (
               <PlatformSection
                 key={section.key}
@@ -2495,6 +2774,94 @@ export function ProductionPage() {
                   : {})}
               />
             ))}
+            <Card className="overflow-hidden" style={{ backgroundColor: '#0088ff0e', borderColor: '#0088ff' }}>
+              <CardHeader
+                className="pb-3 flex items-start justify-between gap-2 cursor-pointer select-none"
+                onClick={() => { setEnviarHojeExpanded((prev) => !prev); setEnviarHojeExpandedId(null); }}
+              >
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-sm tracking-wide md:text-base" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+                    <CalendarCheck className="h-4 w-4 text-blue-600" />
+                    ENVIAR HOJE
+                  </CardTitle>
+                  <p className="text-xs text-black">Pedidos com prazo de envio hoje e pedidos de marketplace.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-blue-700">
+                    {enviarHojePedidos.length + enviarHojeMarketplace.length} pedido(s)
+                  </span>
+                  <ChevronDown className={`h-4 w-4 text-blue-600 transition-transform ${enviarHojeExpanded ? 'rotate-180' : ''}`} />
+                </div>
+              </CardHeader>
+              {enviarHojeExpanded && (
+                <CardContent className="space-y-3">
+                  {enviarHojeLoading && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Carregando pedidos para hoje...
+                    </div>
+                  )}
+                  {enviarHojeError && <div className="text-sm text-red-600">{enviarHojeError}</div>}
+                  {!enviarHojeLoading && !enviarHojeError && (
+                    <>
+                      <div className="flex gap-0 border-b">
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setEnviarHojeSubTab('prazo'); }}
+                          className={`px-3 py-1.5 text-xs font-medium border-b-2 transition-colors ${enviarHojeSubTab === 'prazo' ? 'border-blue-600 text-blue-700' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                        >
+                          PRAZO HOJE ({enviarHojePedidos.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setEnviarHojeSubTab('marketplace'); }}
+                          className={`px-3 py-1.5 text-xs font-medium border-b-2 transition-colors flex items-center gap-1 ${enviarHojeSubTab === 'marketplace' ? 'border-blue-600 text-blue-700' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                        >
+                          <ShoppingBag className="h-3 w-3" />
+                          MARKETPLACE ({enviarHojeMarketplace.length})
+                        </button>
+                      </div>
+                      {enviarHojeSubTab === 'prazo' && (
+                        <div className="space-y-2">
+                          {enviarHojePedidos.length === 0 ? (
+                            <div className="text-sm text-muted-foreground">Nenhum pedido com prazo de envio hoje.</div>
+                          ) : (
+                            enviarHojePedidos.map((p) => (
+                              <EnviarHojeOrderRow
+                                key={p.id}
+                                order={p}
+                                expanded={enviarHojeExpandedId === p.id}
+                                onToggle={() => setEnviarHojeExpandedId((prev) => (prev === p.id ? null : p.id))}
+                                onGenerateLabel={() => { if (p.id_externo) void handleGenerateLabel(p.id_externo); }}
+                                processing={processingLabels.has(p.id_externo ?? '')}
+                              />
+                            ))
+                          )}
+                        </div>
+                      )}
+                      {enviarHojeSubTab === 'marketplace' && (
+                        <div className="space-y-2">
+                          {enviarHojeMarketplace.length === 0 ? (
+                            <div className="text-sm text-muted-foreground">Nenhum pedido de marketplace para hoje.</div>
+                          ) : (
+                            enviarHojeMarketplace.map((p) => (
+                              <EnviarHojeOrderRow
+                                key={p.id}
+                                order={p}
+                                expanded={enviarHojeExpandedId === p.id}
+                                onToggle={() => setEnviarHojeExpandedId((prev) => (prev === p.id ? null : p.id))}
+                                onGenerateLabel={() => { if (p.id_externo) void handleGenerateLabel(p.id_externo); }}
+                                processing={processingLabels.has(p.id_externo ?? '')}
+                              />
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </CardContent>
+              )}
+            </Card>
           </div>
         )}
             </div>
