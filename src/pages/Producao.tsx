@@ -9,6 +9,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { registrarHistoricoMovimentacao } from '@/lib/historicoMovimentacoes';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { type DateRange } from 'react-day-picker';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 type SectionKey = 'yampi' | 'mercado_livre' | 'leads' | 'urgentes';
 type DateRangeKey = 'r1_10' | 'r11_20' | 'r21_30' | 'r31_plus' | 'ml_r1_5' | 'ml_r6_11' | 'ml_r11_20' | 'ml_r20_plus'; // r31_plus mantido para yampi/leads
@@ -1008,6 +1013,9 @@ export function ProductionPage() {
   const [urgentesSummaryByRange, setUrgentesSummaryByRange] = useState<Partial<Record<DateRangeKey, ProducaoItem[]>>>({});
   const [loadingSummary, setLoadingSummary] = useState(true);
   const [summaryError, setSummaryError] = useState<string | null>(null);
+
+  // Filtro por data de criação do pedido
+  const [filterDateRange, setFilterDateRange] = useState<DateRange | undefined>(undefined);
   const [platformImages, setPlatformImages] = useState<Record<string, string | null>>({});
   const [platformImagesById, setPlatformImagesById] = useState<Record<string, string | null>>({});
 
@@ -1114,6 +1122,27 @@ export function ProductionPage() {
   const [enviarHojePedidos, setEnviarHojePedidos] = useState<EnviarHojeOrder[]>([]);
   const [enviarHojeMarketplace, setEnviarHojeMarketplace] = useState<EnviarHojeOrder[]>([]);
   const [enviarHojeExpandedId, setEnviarHojeExpandedId] = useState<string | null>(null);
+
+  // IDs (internos e externos) dos pedidos que aparecem no card ENVIAR HOJE,
+  // para que esses pedidos não sejam exibidos em nenhum outro card.
+  const enviarHojeIds = useMemo(() => {
+    const ids = new Set<string>();
+    const externos = new Set<string>();
+    [...enviarHojePedidos, ...enviarHojeMarketplace].forEach((p) => {
+      if (p.id) ids.add(p.id);
+      if (p.id_externo) externos.add(p.id_externo);
+    });
+    return { ids, externos };
+  }, [enviarHojePedidos, enviarHojeMarketplace]);
+
+  const excludeEnviarHoje = (items: ProducaoItem[]) => {
+    if (enviarHojeIds.ids.size === 0 && enviarHojeIds.externos.size === 0) return items;
+    return items.filter((item) => {
+      if (item.pedido_id && enviarHojeIds.ids.has(item.pedido_id)) return false;
+      if (item.id_externo && enviarHojeIds.externos.has(item.id_externo)) return false;
+      return true;
+    });
+  };
 
   // Modal de Pedidos do Produto (relação de pedidos)
   type ProdutoModalItem = { produto_id: string | null; variacao_id: string | null; nomeProduto: string; nomeVariacao: string | null; imgUrl: string | null };
@@ -1232,7 +1261,7 @@ export function ProductionPage() {
         summaryItems.filter((row) => itemMatchesSection(row, 'yampi') && itemInRange(row, range, now)),
       );
 
-      const allItems = [...allYampiItems, ...allMlItems, ...allComercialItems, ...allUrgentesItems];
+      const allItems = excludeEnviarHoje([...allYampiItems, ...allMlItems, ...allComercialItems, ...allUrgentesItems]);
       const itensDoProduto = allItems.filter((row) => {
         if (!row.pedido_id) return false;
         return matchesProdutoFiltro(row);
@@ -1982,6 +2011,51 @@ export function ProductionPage() {
     };
   }, []);
 
+  // Helpers de filtragem por data de criação
+  const applyDateFilter = (items: ProducaoItem[]) => {
+    const withoutEnviarHoje = excludeEnviarHoje(items);
+    const from = filterDateRange?.from;
+    const to = filterDateRange?.to;
+    if (!from && !to) return withoutEnviarHoje;
+    return withoutEnviarHoje.filter((item) => {
+      if (!item.criado_em) return false;
+      const d = new Date(item.criado_em);
+      d.setHours(0, 0, 0, 0);
+      if (from) { const f = new Date(from); f.setHours(0, 0, 0, 0); if (d < f) return false; }
+      if (to)   { const t = new Date(to);   t.setHours(23, 59, 59, 999); if (d > t) return false; }
+      return true;
+    });
+  };
+
+  const filteredSummaryItems = useMemo(
+    () => applyDateFilter(summaryItems),
+    [summaryItems, filterDateRange, enviarHojeIds],
+  );
+
+  const filteredMlByRange = useMemo(() => {
+    const result: Partial<Record<DateRangeKey, ProducaoItem[]>> = {};
+    for (const [k, v] of Object.entries(mlSummaryByRange)) {
+      result[k as DateRangeKey] = applyDateFilter(v || []);
+    }
+    return result;
+  }, [mlSummaryByRange, filterDateRange, enviarHojeIds]);
+
+  const filteredComercialByRange = useMemo(() => {
+    const result: Partial<Record<DateRangeKey, ProducaoItem[]>> = {};
+    for (const [k, v] of Object.entries(comercialSummaryByRange)) {
+      result[k as DateRangeKey] = applyDateFilter(v || []);
+    }
+    return result;
+  }, [comercialSummaryByRange, filterDateRange, enviarHojeIds]);
+
+  const filteredUrgentesByRange = useMemo(() => {
+    const result: Partial<Record<DateRangeKey, ProducaoItem[]>> = {};
+    for (const [k, v] of Object.entries(urgentesSummaryByRange)) {
+      result[k as DateRangeKey] = applyDateFilter(v || []);
+    }
+    return result;
+  }, [urgentesSummaryByRange, filterDateRange, enviarHojeIds]);
+
   const totalsBySection = useMemo(() => {
     const now = new Date();
 
@@ -2002,7 +2076,7 @@ export function ProductionPage() {
     // Seções não-ML/urgentes: usar summaryItems + DATE_RANGES
     for (const section of SECTION_CONFIGS.filter((s) => s.key !== 'mercado_livre' && s.key !== 'urgentes' && s.key !== 'leads')) {
       for (const range of DATE_RANGES) {
-        const filtered = summaryItems.filter(
+        const filtered = filteredSummaryItems.filter(
           (item) => itemMatchesSection(item, section.key) && itemInRange(item, range, now),
         );
         base[section.key][range.key] = filtered.reduce(
@@ -2013,7 +2087,7 @@ export function ProductionPage() {
 
     // Comercial: usar RPC dedicada por faixa
     for (const range of COMERCIAL_DATE_RANGES) {
-      const filtered = comercialSummaryByRange[range.key] || [];
+      const filtered = filteredComercialByRange[range.key] || [];
       base.leads[range.key] = filtered.reduce(
         (sum, item) => sum + Number(item.quantidade || 0), 0,
       );
@@ -2021,7 +2095,7 @@ export function ProductionPage() {
 
     // Urgentes: usar RPC dedicada por dias para envio
     for (const range of urgentesRanges) {
-      const filtered = urgentesSummaryByRange[range.key] || [];
+      const filtered = filteredUrgentesByRange[range.key] || [];
       const geradasSet = urgentesGeradasPedidoIdsByRange[range.key] || new Set<string>();
       base.urgentes[range.key] = new Set(
         filtered
@@ -2033,20 +2107,20 @@ export function ProductionPage() {
 
     // Mercado Livre: usar RPC dedicada por faixa
     for (const range of ML_DATE_RANGES) {
-      const filtered = mlSummaryByRange[range.key] || [];
+      const filtered = filteredMlByRange[range.key] || [];
       base.mercado_livre[range.key] = filtered.reduce(
         (sum, item) => sum + Number(item.quantidade || 0), 0,
       );
     }
 
     return base;
-  }, [summaryItems, mlSummaryByRange, comercialSummaryByRange, urgentesSummaryByRange, urgentesRanges, urgentesGeradasPedidoIdsByRange]);
+  }, [filteredSummaryItems, filteredMlByRange, filteredComercialByRange, filteredUrgentesByRange, urgentesRanges, urgentesGeradasPedidoIdsByRange]);
 
   const urgentesTotalsSplitByRange = useMemo(() => {
     const split: Partial<Record<DateRangeKey, { pending: number; generated: number }>> = {};
 
     for (const range of urgentesRanges) {
-      const rows = urgentesSummaryByRange[range.key] || [];
+      const rows = excludeEnviarHoje(urgentesSummaryByRange[range.key] || []);
       const geradasSet = urgentesGeradasPedidoIdsByRange[range.key] || new Set<string>();
 
       const pending = new Set(
@@ -2067,7 +2141,7 @@ export function ProductionPage() {
     }
 
     return split;
-  }, [urgentesRanges, urgentesSummaryByRange, urgentesGeradasPedidoIdsByRange]);
+  }, [urgentesRanges, urgentesSummaryByRange, urgentesGeradasPedidoIdsByRange, enviarHojeIds]);
 
   const createdAtByExternalId = useMemo(() => {
     const map = new Map<string, number>();
@@ -2152,6 +2226,9 @@ export function ProductionPage() {
         const rawItems = await fetchProducaoItens({ start: bounds.start, end: bounds.end });
         filteredRows = rawItems.filter((item) => itemMatchesSection(item, section));
       }
+
+      // Remover itens cujo pedido já está sendo exibido no card ENVIAR HOJE
+      filteredRows = excludeEnviarHoje(filteredRows);
 
       // Armazenar itens brutos para urgentes (necessário para filtragem por abas de plataforma)
       if (section === 'urgentes') {
@@ -2346,11 +2423,11 @@ export function ProductionPage() {
   const getProdutosMaeAgrupados = (): ProdutoMaeResumo[] => {
     const now = new Date();
     const allYampiItems = DATE_RANGES.flatMap((range) =>
-      summaryItems.filter((row) => itemMatchesSection(row, 'yampi') && itemInRange(row, range, now)),
+      filteredSummaryItems.filter((row) => itemMatchesSection(row, 'yampi') && itemInRange(row, range, now)),
     );
-    const allMlItems = ML_DATE_RANGES.flatMap((range) => mlSummaryByRange[range.key] || []);
-    const allComercialItems = COMERCIAL_DATE_RANGES.flatMap((range) => comercialSummaryByRange[range.key] || []);
-    const allUrgentesItems = urgentesRanges.flatMap((range) => urgentesSummaryByRange[range.key] || []);
+    const allMlItems = ML_DATE_RANGES.flatMap((range) => filteredMlByRange[range.key] || []);
+    const allComercialItems = COMERCIAL_DATE_RANGES.flatMap((range) => filteredComercialByRange[range.key] || []);
+    const allUrgentesItems = urgentesRanges.flatMap((range) => filteredUrgentesByRange[range.key] || []);
     const allItems = [...allYampiItems, ...allMlItems, ...allComercialItems, ...allUrgentesItems];
     const produtosMap = new Map<string, ProdutoMaeResumo>();
 
@@ -2591,6 +2668,57 @@ export function ProductionPage() {
 
         {!loadingSummary && !summaryError && !(pageSearchResult && pageSearchResult !== 'not_found' && pageSearchResult !== 'already_processed') && (
           <div className="space-y-6">
+            {/* Filtro por data de criação */}
+            <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/40 px-4 py-3">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <CalendarCheck className="h-3.5 w-3.5" />
+                Filtrar por data de criação:
+              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 rounded border bg-background px-3 py-1.5 text-xs shadow-sm hover:bg-accent transition-colors"
+                  >
+                    <CalendarCheck className="h-3.5 w-3.5 text-muted-foreground" />
+                    {filterDateRange?.from ? (
+                      filterDateRange.to ? (
+                        <>
+                          {format(filterDateRange.from, 'dd/MM/yyyy', { locale: ptBR })}
+                          {' — '}
+                          {format(filterDateRange.to, 'dd/MM/yyyy', { locale: ptBR })}
+                        </>
+                      ) : (
+                        format(filterDateRange.from, 'dd/MM/yyyy', { locale: ptBR })
+                      )
+                    ) : (
+                      <span className="text-muted-foreground">Selecionar período</span>
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="range"
+                    selected={filterDateRange}
+                    onSelect={setFilterDateRange}
+                    locale={ptBR}
+                    numberOfMonths={2}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              {(filterDateRange?.from || filterDateRange?.to) && (
+                <button
+                  type="button"
+                  onClick={() => setFilterDateRange(undefined)}
+                  className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Limpar
+                </button>
+              )}
+            </div>
+
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Itens a produzir</CardTitle>

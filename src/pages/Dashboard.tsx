@@ -9,7 +9,6 @@ import {
   TrendingDown,
   BarChart3,
   AlertCircle,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   List,
@@ -40,23 +39,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import {
   format,
-  startOfMonth,
-  subMonths,
   parseISO,
   eachDayOfInterval,
-  isSameDay,
-  isWithinInterval,
   startOfDay,
   endOfDay,
   addDays,
   subDays,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -80,7 +70,7 @@ import { MdRequestQuote } from "react-icons/md";
 import { BiSolidPurchaseTag } from "react-icons/bi";
 import { BsSendCheckFill } from "react-icons/bs";
 import { FaBalanceScale } from "react-icons/fa";
-import { FaCalendarAlt } from "react-icons/fa";
+import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
 
 interface DashboardMetrics {
   totalPedidos: number;
@@ -142,7 +132,6 @@ export function Dashboard() {
   const [endDate, setEndDate] = useState<string>(() =>
     format(new Date(), "yyyy-MM-dd"),
   );
-  const [pickerOpen, setPickerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
@@ -196,15 +185,27 @@ export function Dashboard() {
     summary: null,
     data: [],
   });
-  const [tempStartDate, setTempStartDate] = useState<Date | null>(null);
-  const [tempEndDate, setTempEndDate] = useState<Date | null>(null);
-  const [hoverDate, setHoverDate] = useState<Date | null>(null);
-  const [calendarMonth, setCalendarMonth] = useState<number>(() =>
-    new Date().getMonth(),
-  );
-  const [calendarYear, setCalendarYear] = useState<number>(() =>
-    new Date().getFullYear(),
-  );
+  const [enviadosModal, setEnviadosModal] = useState<{
+    open: boolean;
+    loading: boolean;
+    startDate: string;
+    endDate: string;
+    data: Array<{
+      id: string;
+      id_externo: string | null;
+      atualizado_em: string;
+      valor_total: number;
+      isSplit: boolean;
+    }>;
+    porMes: Array<{ mes: string; quantidade: number }>;
+  }>({
+    open: false,
+    loading: false,
+    startDate,
+    endDate,
+    data: [],
+    porMes: [],
+  });
   const EXCLUDED_STATUS_ID = "09ddb68a-cff3-4a69-a120-7459642cca6f";
 
   const fetchMetrics = useCallback(async () => {
@@ -888,6 +889,75 @@ export function Dashboard() {
     await fetchFreteModalByDate(initialDate);
   };
 
+  const fetchEnviadosModal = async (
+    rangeStart?: string,
+    rangeEnd?: string,
+  ) => {
+    const filterStart = rangeStart || enviadosModal.startDate || startDate;
+    const filterEnd = rangeEnd || enviadosModal.endDate || endDate;
+    setEnviadosModal((prev) => ({
+      ...prev,
+      open: true,
+      loading: true,
+      startDate: filterStart,
+      endDate: filterEnd,
+    }));
+    try {
+      const startISO = new Date(filterStart + "T00:00:00").toISOString();
+      const endISO = new Date(filterEnd + "T23:59:59").toISOString();
+      const ENVIADO_STATUS_ID = "fa6b38ba-1d67-4bc3-821e-ab089d641a25";
+
+      const { data, error } = await (supabase as any)
+        .from("pedidos")
+        .select("id, id_externo, atualizado_em, valor_total")
+        .eq("status_id", ENVIADO_STATUS_ID)
+        .gte("atualizado_em", startISO)
+        .lte("atualizado_em", endISO)
+        .order("atualizado_em", { ascending: false });
+      if (error) throw error;
+
+      const rows = (data || []).map((p: any) => {
+        const idExterno = p.id_externo || "";
+        const isSplit = /\/\d+$/.test(idExterno);
+        return {
+          id: p.id,
+          id_externo: p.id_externo,
+          atualizado_em: p.atualizado_em,
+          valor_total: Number(p.valor_total || 0),
+          isSplit,
+        };
+      });
+
+      const { data: porMesData, error: porMesError } = await (supabase as any)
+        .from("pedidos")
+        .select("atualizado_em")
+        .eq("status_id", ENVIADO_STATUS_ID);
+      if (porMesError) throw porMesError;
+
+      const porMesMap: Record<string, number> = {};
+      (porMesData || []).forEach((p: any) => {
+        if (!p.atualizado_em) return;
+        const mes = format(parseISO(p.atualizado_em), "yyyy-MM");
+        porMesMap[mes] = (porMesMap[mes] || 0) + 1;
+      });
+      const porMes = Object.entries(porMesMap)
+        .map(([mes, quantidade]) => ({ mes, quantidade }))
+        .sort((a, b) => a.mes.localeCompare(b.mes));
+
+      setEnviadosModal({
+        open: true,
+        loading: false,
+        startDate: filterStart,
+        endDate: filterEnd,
+        data: rows,
+        porMes,
+      });
+    } catch (err) {
+      console.error("Erro ao buscar pedidos enviados:", err);
+      setEnviadosModal((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
   const goFreteModalDay = async (direction: "prev" | "next") => {
     const currentDate = parseISO(freteModal.selectedDate);
     const target =
@@ -922,170 +992,6 @@ export function Dashboard() {
     );
   }
 
-  const handleDateClick = (date: Date) => {
-    if (!tempStartDate || (tempStartDate && tempEndDate)) {
-      // Primeira data ou resetar seleção
-      setTempStartDate(date);
-      setTempEndDate(null);
-    } else {
-      // Segunda data
-      if (date < tempStartDate) {
-        setTempEndDate(tempStartDate);
-        setTempStartDate(date);
-      } else {
-        setTempEndDate(date);
-      }
-    }
-  };
-
-  const applyCustomDates = () => {
-    if (tempStartDate) {
-      setStartDate(format(tempStartDate, "yyyy-MM-dd"));
-      if (tempEndDate) {
-        setEndDate(format(tempEndDate, "yyyy-MM-dd"));
-      } else {
-        setEndDate(format(tempStartDate, "yyyy-MM-dd"));
-      }
-    }
-    setPickerOpen(false);
-  };
-
-  const handlePreset = (presetFn: () => void) => {
-    presetFn();
-  };
-
-  const navigateMonth = (direction: "prev" | "next") => {
-    if (direction === "prev") {
-      if (calendarMonth === 0) {
-        setCalendarMonth(11);
-        setCalendarYear(calendarYear - 1);
-      } else {
-        setCalendarMonth(calendarMonth - 1);
-      }
-    } else {
-      if (calendarMonth === 11) {
-        setCalendarMonth(0);
-        setCalendarYear(calendarYear + 1);
-      } else {
-        setCalendarMonth(calendarMonth + 1);
-      }
-    }
-  };
-
-  const renderCalendar = (monthOffset: number = 0) => {
-    const today = new Date();
-
-    // Calcular mês a ser exibido (atual ou próximo)
-    const displayYear =
-      monthOffset === 0
-        ? calendarYear
-        : calendarMonth === 11
-          ? calendarYear + 1
-          : calendarYear;
-    const displayMonth =
-      monthOffset === 0
-        ? calendarMonth
-        : calendarMonth === 11
-          ? 0
-          : calendarMonth + 1;
-
-    // Gerar dias do mês selecionado
-    const firstDay = new Date(displayYear, displayMonth, 1);
-    const lastDay = new Date(displayYear, displayMonth + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startDayOfWeek = firstDay.getDay();
-
-    const days = [];
-
-    // Dias vazios antes do primeiro dia
-    for (let i = 0; i < startDayOfWeek; i++) {
-      days.push(<div key={`empty-${i}`} className="h-9" />);
-    }
-
-    // Dias do mês
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(displayYear, displayMonth, day);
-      const isFirstDay = tempStartDate && isSameDay(date, tempStartDate);
-      const isLastDay = tempEndDate && isSameDay(date, tempEndDate);
-      const isSelected = isFirstDay || isLastDay;
-      const isInRange =
-        tempStartDate &&
-        tempEndDate &&
-        isWithinInterval(date, { start: tempStartDate, end: tempEndDate }) &&
-        !isFirstDay &&
-        !isLastDay;
-      const isHovered =
-        hoverDate &&
-        tempStartDate &&
-        !tempEndDate &&
-        isWithinInterval(date, {
-          start: tempStartDate < hoverDate ? tempStartDate : hoverDate,
-          end: tempStartDate < hoverDate ? hoverDate : tempStartDate,
-        });
-      const isToday = isSameDay(date, today);
-
-      days.push(
-        <button
-          key={day}
-          onClick={() => handleDateClick(date)}
-          onMouseEnter={() => setHoverDate(date)}
-          onMouseLeave={() => setHoverDate(null)}
-          className={`
-            h-9 w-9 text-sm transition-colors flex items-center justify-center
-            ${isFirstDay && !isLastDay ? "rounded-l-full bg-custom-600 text-white font-semibold" : ""}
-            ${isLastDay && !isFirstDay ? "rounded-r-full bg-custom-600 text-white font-semibold" : ""}
-            ${isFirstDay && isLastDay ? "rounded-full bg-custom-600 text-white font-semibold" : ""}
-            ${isInRange || isHovered ? "bg-custom-600 text-white" : ""}
-            ${!isSelected && !isInRange && !isHovered ? "rounded hover:bg-gray-100" : ""}
-            ${isToday && !isSelected ? "border-2 rounded-full border-custom-600" : ""}
-          `}
-        >
-          {day}
-        </button>,
-      );
-    }
-
-    return (
-      <div className="px-4 py-3">
-        <div className="flex items-center justify-between mb-3">
-          {monthOffset === 0 && (
-            <button
-              onClick={() => navigateMonth("prev")}
-              className="p-1 hover:bg-gray-100 rounded transition-colors"
-              type="button"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-          )}
-          {monthOffset === 1 && <div className="w-7" />}
-          <div className="text-center font-semibold text-base">
-            {format(firstDay, "MMMM yyyy", { locale: ptBR })}
-          </div>
-          {monthOffset === 1 && (
-            <button
-              onClick={() => navigateMonth("next")}
-              className="p-1 hover:bg-gray-100 rounded transition-colors"
-              type="button"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          )}
-          {monthOffset === 0 && <div className="w-7" />}
-        </div>
-        <div className="grid grid-cols-7 gap-1 mb-2 text-xs text-gray-500 text-center font-medium">
-          <div>DOM</div>
-          <div>SEG</div>
-          <div>TER</div>
-          <div>QUA</div>
-          <div>QUI</div>
-          <div>SEX</div>
-          <div>SÁB</div>
-        </div>
-        <div className="grid grid-cols-7 gap-1">{days}</div>
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -1097,183 +1003,15 @@ export function Dashboard() {
         </div>
         <div className="flex items-center gap-2">
           <label className="text-sm text-muted-foreground">Período</label>
-          <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
-            <PopoverTrigger asChild>
-              <Button className="flex items-center justify-center gap-2 bg-custom-600 text-white hover:bg-custom-700">
-                <FaCalendarAlt className="h-4 w-4" />
-                <span className="text-sm">
-                  {format(parseISO(startDate), "dd/MM/yy", { locale: ptBR })} →{" "}
-                  {format(parseISO(endDate), "dd/MM/yy", { locale: ptBR })}
-                </span>
-                <ChevronDown className="h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              {/* Título */}
-              <div className="px-4 py-3 border-b">
-                <h3 className="font-semibold text-base">Selecionar Período</h3>
-              </div>
-
-              <div className="flex">
-                {/* Lista de períodos à esquerda */}
-                <div className="w-48 border-r">
-                  <div className="py-2">
-                    {[
-                      {
-                        label: "Hoje",
-                        fn: () => {
-                          const d = new Date();
-                          setStartDate(format(d, "yyyy-MM-dd"));
-                          setEndDate(format(d, "yyyy-MM-dd"));
-                          setTempStartDate(d);
-                          setTempEndDate(d);
-                        },
-                      },
-                      {
-                        label: "Ontem",
-                        fn: () => {
-                          const d = new Date();
-                          d.setDate(d.getDate() - 1);
-                          setStartDate(format(d, "yyyy-MM-dd"));
-                          setEndDate(format(d, "yyyy-MM-dd"));
-                          setTempStartDate(d);
-                          setTempEndDate(d);
-                        },
-                      },
-                      {
-                        label: "Últimos 7 dias",
-                        fn: () => {
-                          const e = new Date();
-                          const s = new Date();
-                          s.setDate(e.getDate() - 6);
-                          setStartDate(format(s, "yyyy-MM-dd"));
-                          setEndDate(format(e, "yyyy-MM-dd"));
-                          setTempStartDate(s);
-                          setTempEndDate(e);
-                        },
-                      },
-                      {
-                        label: "Últimos 14 dias",
-                        fn: () => {
-                          const e = new Date();
-                          const s = new Date();
-                          s.setDate(e.getDate() - 13);
-                          setStartDate(format(s, "yyyy-MM-dd"));
-                          setEndDate(format(e, "yyyy-MM-dd"));
-                          setTempStartDate(s);
-                          setTempEndDate(e);
-                        },
-                      },
-                      {
-                        label: "Últimos 30 dias",
-                        fn: () => {
-                          const e = new Date();
-                          const s = new Date();
-                          s.setDate(e.getDate() - 29);
-                          setStartDate(format(s, "yyyy-MM-dd"));
-                          setEndDate(format(e, "yyyy-MM-dd"));
-                          setTempStartDate(s);
-                          setTempEndDate(e);
-                        },
-                      },
-                      {
-                        label: "Este mês",
-                        fn: () => {
-                          const e = new Date();
-                          const s = startOfMonth(e);
-                          setStartDate(format(s, "yyyy-MM-dd"));
-                          setEndDate(format(e, "yyyy-MM-dd"));
-                          setTempStartDate(s);
-                          setTempEndDate(e);
-                        },
-                      },
-                      {
-                        label: "Mês passado",
-                        fn: () => {
-                          const hoje = new Date();
-                          const mesPassado = subMonths(hoje, 1);
-                          const s = startOfMonth(mesPassado);
-                          const e = new Date(
-                            mesPassado.getFullYear(),
-                            mesPassado.getMonth() + 1,
-                            0,
-                          );
-                          setStartDate(format(s, "yyyy-MM-dd"));
-                          setEndDate(format(e, "yyyy-MM-dd"));
-                          setTempStartDate(s);
-                          setTempEndDate(e);
-                        },
-                      },
-                      {
-                        label: "Ano",
-                        fn: () => {
-                          const e = new Date();
-                          const s = new Date(e.getFullYear(), 0, 1);
-                          setStartDate(format(s, "yyyy-MM-dd"));
-                          setEndDate(format(e, "yyyy-MM-dd"));
-                          setTempStartDate(s);
-                          setTempEndDate(e);
-                        },
-                      },
-                      {
-                        label: "Máximo",
-                        fn: () => {
-                          const e = new Date();
-                          const s = new Date(2020, 0, 1);
-                          setStartDate(format(s, "yyyy-MM-dd"));
-                          setEndDate(format(e, "yyyy-MM-dd"));
-                          setTempStartDate(s);
-                          setTempEndDate(e);
-                        },
-                      },
-                    ].map((preset, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handlePreset(preset.fn)}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors text-sm"
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Dois calendários lado a lado */}
-                <div className="flex flex-col">
-                  <div className="flex">
-                    {renderCalendar(0)}
-                    {renderCalendar(1)}
-                  </div>
-
-                  {/* Botões no final */}
-                  <div className="flex gap-2 px-4 py-3 border-t">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => {
-                        setTempStartDate(null);
-                        setTempEndDate(null);
-                        setPickerOpen(false);
-                      }}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="flex-1 bg-custom-600 hover:bg-custom-700"
-                      onClick={applyCustomDates}
-                      disabled={!tempStartDate}
-                    >
-                      Atualizar
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+          <DateRangePicker
+            startDate={startDate}
+            endDate={endDate}
+            onChange={(s, e) => {
+              setStartDate(s);
+              setEndDate(e);
+            }}
+          />
         </div>
-      </div>
 
       {error && (
         <Card className="border-destructive">
@@ -1330,13 +1068,23 @@ export function Dashboard() {
                 icon={FaBalanceScale}
                 color="blue"
               />
-              <MetricCard
-                title="Pedidos Enviados"
-                value={metrics.pedidosEnviados.toString()}
-                description={`${metrics.pedidosEnviadosHoje} hoje • ${metrics.pedidosEnviadosMesAtual} no mês`}
-                icon={BsSendCheckFill}
-                color="orange"
-              />
+              <div className="relative group">
+                <MetricCard
+                  title="Pedidos Enviados"
+                  value={metrics.pedidosEnviados.toString()}
+                  description={`${metrics.pedidosEnviadosHoje} hoje • ${metrics.pedidosEnviadosMesAtual} no mês`}
+                  icon={BsSendCheckFill}
+                  color="orange"
+                />
+                <button
+                  onClick={() => fetchEnviadosModal(startDate, endDate)}
+                  className="absolute bottom-3 right-3 flex items-center gap-1 text-[11px] font-medium text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-300 rounded-md px-2 py-1 shadow-sm transition-colors"
+                  title="Ver detalhes dos pedidos enviados"
+                >
+                  <Eye className="h-3 w-3" />
+                  Ver detalhes
+                </button>
+              </div>
             </div>
 
             {/* Métricas de Spread de Frete */}
@@ -2445,6 +2193,242 @@ export function Dashboard() {
               </>
             );
           })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal: detalhes de pedidos enviados */}
+      <Dialog
+        open={enviadosModal.open}
+        onOpenChange={(v) =>
+          setEnviadosModal((prev) => ({ ...prev, open: v }))
+        }
+      >
+        <DialogContent className="max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BsSendCheckFill className="h-5 w-5 text-orange-600" />
+              Detalhes de Pedidos Enviados
+            </DialogTitle>
+            <DialogDescription>
+              Discriminação dos pedidos enviados no período e histórico mensal
+              de envios.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-2">
+            <span className="text-xs text-muted-foreground">Período</span>
+            <DateRangePicker
+              startDate={enviadosModal.startDate}
+              endDate={enviadosModal.endDate}
+              align="start"
+              triggerClassName="flex items-center justify-center gap-2 bg-orange-600 text-white hover:bg-orange-700 h-8 px-3"
+              onChange={(s, e) => fetchEnviadosModal(s, e)}
+            />
+          </div>
+
+          {enviadosModal.loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-orange-600" />
+            </div>
+          ) : (
+            <Tabs defaultValue="detalhamento" className="w-full flex-1 flex flex-col overflow-hidden">
+              <TabsList>
+                <TabsTrigger value="detalhamento">Detalhamento</TabsTrigger>
+                <TabsTrigger value="porMes">Por Mês</TabsTrigger>
+              </TabsList>
+
+              <TabsContent
+                value="detalhamento"
+                className="mt-2 flex-1 flex flex-col overflow-hidden"
+              >
+                {(() => {
+                  const normais = enviadosModal.data.filter(
+                    (p) => !p.isSplit,
+                  );
+                  const desmembrados = enviadosModal.data.filter(
+                    (p) => p.isSplit,
+                  );
+                  const normaisRevenue = normais.reduce(
+                    (s, p) => s + p.valor_total,
+                    0,
+                  );
+                  const desmembradosRevenue = desmembrados.reduce(
+                    (s, p) => s + p.valor_total,
+                    0,
+                  );
+
+                  return (
+                    <>
+                      <div className="grid grid-cols-2 gap-3 py-2">
+                        <div className="rounded-lg border border-orange-300 bg-orange-50 p-4 flex flex-col items-center gap-1">
+                          <Package className="h-5 w-5 text-orange-600" />
+                          <span className="text-2xl font-bold text-orange-800">
+                            {normais.length}
+                          </span>
+                          <span className="text-xs text-orange-700 font-medium text-center">
+                            Pedidos
+                          </span>
+                          <span className="text-xs text-orange-600">
+                            {formatCurrency(normaisRevenue)}
+                          </span>
+                        </div>
+                        <div className="rounded-lg border border-border bg-muted/30 p-4 flex flex-col items-center gap-1">
+                          <List className="h-5 w-5 text-muted-foreground" />
+                          <span className="text-2xl font-bold text-foreground">
+                            {desmembrados.length}
+                          </span>
+                          <span className="text-xs text-muted-foreground font-medium text-center">
+                            Desmembrados (/1, /2...)
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatCurrency(desmembradosRevenue)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-h-0 rounded-md border overflow-hidden mt-2">
+                        {enviadosModal.data.length === 0 ? (
+                          <div className="h-full flex flex-col items-center justify-center gap-3 py-12">
+                            <Package className="h-10 w-10 text-foreground opacity-50" />
+                            <p className="text-sm text-foreground">
+                              Nenhum pedido enviado encontrado no período.
+                            </p>
+                          </div>
+                        ) : (
+                          <ScrollArea className="h-[340px]">
+                            <table className="w-full text-xs">
+                              <thead className="sticky top-0 bg-muted/80 backdrop-blur-sm">
+                                <tr>
+                                  <th className="text-left px-3 py-2 font-semibold text-muted-foreground">
+                                    Pedido
+                                  </th>
+                                  <th className="text-left px-3 py-2 font-semibold text-muted-foreground">
+                                    Tipo
+                                  </th>
+                                  <th className="text-left px-3 py-2 font-semibold text-muted-foreground">
+                                    Enviado em
+                                  </th>
+                                  <th className="text-right px-3 py-2 font-semibold text-muted-foreground">
+                                    Valor
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {enviadosModal.data.map((row) => (
+                                  <tr
+                                    key={row.id}
+                                    className="border-t hover:bg-muted/30 transition-colors"
+                                  >
+                                    <td className="px-3 py-2 font-mono text-[11px]">
+                                      {row.id_externo || "—"}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                      {row.isSplit ? (
+                                        <Badge
+                                          variant="secondary"
+                                          className="text-[10px]"
+                                        >
+                                          Desmembrado
+                                        </Badge>
+                                      ) : (
+                                        <Badge className="text-[10px] bg-orange-100 text-orange-800 hover:bg-orange-100">
+                                          Pedido
+                                        </Badge>
+                                      )}
+                                    </td>
+                                    <td className="px-3 py-2 text-muted-foreground">
+                                      {format(
+                                        parseISO(row.atualizado_em),
+                                        "dd/MM/yyyy HH:mm",
+                                        { locale: ptBR },
+                                      )}
+                                    </td>
+                                    <td className="px-3 py-2 text-right tabular-nums">
+                                      {formatCurrency(row.valor_total)}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </ScrollArea>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
+              </TabsContent>
+
+              <TabsContent
+                value="porMes"
+                className="mt-2 flex-1 flex flex-col overflow-hidden"
+              >
+                {enviadosModal.porMes.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground gap-2">
+                    <BarChart3 className="h-12 w-12 opacity-20" />
+                    <p className="text-sm">Nenhum dado disponível</p>
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={380}>
+                    <BarChart
+                      data={enviadosModal.porMes}
+                      margin={{ top: 30, right: 30, left: 20, bottom: 0 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#e5e7eb"
+                        opacity={0.5}
+                      />
+                      <XAxis
+                        dataKey="mes"
+                        angle={0}
+                        textAnchor="middle"
+                        height={30}
+                        tick={{
+                          fill: "#6b7280",
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                        tickFormatter={(value) =>
+                          format(parseISO(`${value}-01`), "MMM/yy", {
+                            locale: ptBR,
+                          })
+                        }
+                      />
+                      <YAxis
+                        tick={{
+                          fill: "#6b7280",
+                          fontSize: 12,
+                          fontWeight: 500,
+                        }}
+                        allowDecimals={false}
+                      />
+                      <Tooltip
+                        formatter={(value: any) => [value, "Pedidos enviados"]}
+                        labelFormatter={(label) =>
+                          format(parseISO(`${label}-01`), "MMMM 'de' yyyy", {
+                            locale: ptBR,
+                          })
+                        }
+                        contentStyle={{
+                          backgroundColor: "rgba(255, 255, 255, 0.98)",
+                          border: "none",
+                          borderRadius: "12px",
+                          boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+                          padding: "12px 16px",
+                        }}
+                        cursor={{ fill: "rgba(0,0,0,0.05)" }}
+                      />
+                      <Bar
+                        dataKey="quantidade"
+                        radius={[10, 10, 0, 0]}
+                        fill="#f97316"
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </TabsContent>
+            </Tabs>
+          )}
         </DialogContent>
       </Dialog>
 
